@@ -165,6 +165,7 @@ class StepsID
 {
 	StepsType st;
 	Difficulty dc;
+	RString ck;
 	RString sDescription;
 	unsigned uHash;
 	mutable CachedObjectPointer<Steps> m_Cache;

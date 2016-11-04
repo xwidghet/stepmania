@@ -2497,6 +2497,19 @@ public:
 	{
 		if( LuaBinding::CheckLuaObjectType(L, 1, "Song") )
 		{
+
+			// REMEMBER TO MOVE DIS - Mina
+			FOREACH_CONST(Song*, SONGMAN->GetAllSongs(), pSong)
+			{
+				if (!(*pSong)->NormallyDisplayed())
+					continue;	// skip
+
+				FOREACH_CONST(Steps*, (*pSong)->GetAllSteps(), pSteps)
+				{
+					bool doot = (*pSteps)->ChartKey == "lel";
+				}
+			}
+
 			const Song *pSong = Luna<Song>::check(L,1);
 			const Steps *pSteps = Luna<Steps>::check(L,2);
 			HighScoreList &hsl = p->GetStepsHighScoreList( pSong, pSteps );

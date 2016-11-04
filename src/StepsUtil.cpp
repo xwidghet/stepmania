@@ -251,6 +251,7 @@ void StepsID::FromSteps( const Steps *p )
 	{
 		st = StepsType_Invalid;
 		dc = Difficulty_Invalid;
+		ck = p->ChartKey;
 		sDescription = "";
 		uHash = 0;
 	}
@@ -314,6 +315,7 @@ XNode* StepsID::CreateNode() const
 
 	pNode->AppendAttr( "StepsType", GAMEMAN->GetStepsTypeInfo(st).szName );
 	pNode->AppendAttr( "Difficulty", DifficultyToString(dc) );
+	pNode->AppendAttr(" ChartKey", ck);
 	if( dc == Difficulty_Edit )
 	{
 		pNode->AppendAttr( "Description", sDescription );
