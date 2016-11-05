@@ -19,7 +19,12 @@ struct HighScoreImpl
 	Grade grade;
 	unsigned int iScore;
 	float fPercentDP;
+	float fWifeScore;
 	float fSurviveSeconds;
+	float fMusicRate;
+	float fJudgeScale;
+	vector<float> vOffsetVector;
+	vector<int> vNoteRowVector;
 	unsigned int iMaxCombo;			// maximum combo obtained [SM5 alpha 1a+]
 	StageAward stageAward;	// stage award [SM5 alpha 1a+]
 	PeakComboAward peakComboAward;	// peak combo award [SM5 alpha 1a+]
@@ -37,6 +42,11 @@ struct HighScoreImpl
 	HighScoreImpl();
 	XNode *CreateNode() const;
 	void LoadFromNode( const XNode *pNode );
+
+	RString OffsetsToString(vector<float> v) const;
+	vector<float> OffsetsToVector(RString s);
+	RString NoteRowsToString(vector<int> v) const;
+	vector<int> NoteRowsToVector(RString s);
 
 	bool operator==( const HighScoreImpl& other ) const;
 	bool operator!=( const HighScoreImpl& other ) const { return !(*this == other); }
@@ -70,12 +80,95 @@ bool HighScoreImpl::operator==( const HighScoreImpl& other ) const
 	return true;
 }
 
+RString HighScoreImpl::OffsetsToString(vector<float> v) const{
+	RString o = "Invalid";
+	if (v.size() == 0)
+		return o;
+
+	o = to_string(v[0]);
+	for (size_t i = 1; i < v.size(); i++)
+		o.append("," + to_string(v[i]));
+	return o;
+}
+
+RString HighScoreImpl::NoteRowsToString(vector<int> v) const {
+	RString o = "Invalid";
+	if (v.size() == 0)
+		return o;
+
+	o = to_string(v[0]);
+	for (size_t i = 1; i < v.size(); i++)
+		o.append("," + to_string(v[i]));
+	return o;
+}
+
+vector<float> HighScoreImpl::OffsetsToVector(RString s) {
+	vector<float> o;
+	size_t startpos = 0;
+
+	if (s == "Invalid")
+		return o;
+
+	do {
+		size_t pos;
+		pos = s.find(",", startpos);
+		if (pos == s.npos)
+			pos = s.size();
+
+		if (pos - startpos > 0)
+		{
+			if (startpos == 0 && pos - startpos == s.size())
+				o.push_back(StringToFloat(s));
+			else
+			{
+				const RString AddRString = s.substr(startpos, pos - startpos);
+				o.push_back(StringToFloat(AddRString));
+			}
+		}
+		startpos = pos + 1;
+	} while (startpos <= s.size());
+	return o;
+}
+
+vector<int> HighScoreImpl::NoteRowsToVector(RString s) {
+	vector<int> o;
+	size_t startpos = 0;
+
+	if (s == "Invalid")
+		return o;
+
+	do {
+		size_t pos;
+		pos = s.find(",", startpos);
+		if (pos == s.npos)
+			pos = s.size();
+
+		if (pos - startpos > 0)
+		{
+			if (startpos == 0 && pos - startpos == s.size())
+				o.push_back(StringToFloat(s));
+			else
+			{
+				const RString AddRString = s.substr(startpos, pos - startpos);
+				o.push_back(StringToFloat(AddRString));
+			}
+		}
+		startpos = pos + 1;
+	} while (startpos <= s.size());
+	return o;
+}
+
 HighScoreImpl::HighScoreImpl()
 {
 	sName = "";
 	grade = Grade_NoData;
 	iScore = 0;
 	fPercentDP = 0;
+	fWifeScore = 0;
+	fMusicRate = 0;
+	fJudgeScale = 0;
+	vOffsetVector.clear();
+	vNoteRowVector.clear();
 	fSurviveSeconds = 0;
 	iMaxCombo = 0;
 	stageAward = StageAward_Invalid;
@@ -102,6 +195,11 @@ XNode *HighScoreImpl::CreateNode() const
 	pNode->AppendChild( "Grade",			GradeToString(grade) );
 	pNode->AppendChild( "Score",			iScore );
 	pNode->AppendChild( "PercentDP",		fPercentDP );
+	pNode->AppendChild( "WifeScore", fWifeScore);
+	pNode->AppendChild( "Rate", fMusicRate);
+	pNode->AppendChild( "JudgeScale", fJudgeScale);
+	pNode->AppendChild( "Offsets", OffsetsToString(vOffsetVector));
+	pNode->AppendChild( "NoteRows", NoteRowsToString(vNoteRowVector));
 	pNode->AppendChild( "SurviveSeconds",	fSurviveSeconds );
 	pNode->AppendChild( "MaxCombo",			iMaxCombo );
 	pNode->AppendChild( "StageAward",		StageAwardToString(stageAward) );
@@ -137,6 +235,11 @@ void HighScoreImpl::LoadFromNode( const XNode *pNode )
 	grade = StringToGrade( s );
 	pNode->GetChildValue( "Score",			iScore );
 	pNode->GetChildValue( "PercentDP",		fPercentDP );
+	pNode->GetChildValue( "WifeScore", fWifeScore);
+	pNode->GetChildValue( "Rate", fMusicRate);
+	pNode->GetChildValue( "JudgeScale", fJudgeScale);
+	pNode->GetChildValue( "Offsets", s); vOffsetVector = OffsetsToVector(s);
+	pNode->GetChildValue( "NoteRows", s); vNoteRowVector = NoteRowsToVector(s);
 	pNode->GetChildValue( "SurviveSeconds",		fSurviveSeconds );
 	pNode->GetChildValue( "MaxCombo",		iMaxCombo );
 	pNode->GetChildValue( "StageAward",		s ); stageAward = StringToStageAward(s);
@@ -216,6 +319,11 @@ void HighScore::SetMaxCombo( unsigned int i ) { m_Impl->iMaxCombo = i; }
 void HighScore::SetStageAward( StageAward a ) { m_Impl->stageAward = a; }
 void HighScore::SetPeakComboAward( PeakComboAward a ) { m_Impl->peakComboAward = a; }
 void HighScore::SetPercentDP( float f ) { m_Impl->fPercentDP = f; }
+void HighScore::SetWifeScore(float f) {m_Impl->fWifeScore = f;}
+void HighScore::SetMusicRate(float f) { m_Impl->fMusicRate = f; }
+void HighScore::SetJudgeValue(float f) { m_Impl->fJudgeScale = f; }
+void HighScore::SetOffsetVector(vector<float> v) { m_Impl->vOffsetVector = v; }
+void HighScore::SetNoteRowVector(vector<int> v) { m_Impl->vNoteRowVector = v; }
 void HighScore::SetAliveSeconds( float f ) { m_Impl->fSurviveSeconds = f; }
 void HighScore::SetModifiers( const RString &s ) { m_Impl->sModifiers = s; }
 void HighScore::SetDateTime( DateTime d ) { m_Impl->dateTime = d; }

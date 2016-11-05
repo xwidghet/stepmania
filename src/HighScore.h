@@ -68,6 +68,11 @@ struct HighScore
 	void SetGrade( Grade g );
 	void SetScore( unsigned int iScore );
 	void SetPercentDP( float f );
+	void SetWifeScore(float f);
+	void SetMusicRate(float f);
+	void SetJudgeValue(float f);
+	void SetOffsetVector(vector<float> v);
+	void SetNoteRowVector(vector<int> v);
 	void SetAliveSeconds( float f );
 	void SetMaxCombo( unsigned int i );
 	void SetStageAward( StageAward a );

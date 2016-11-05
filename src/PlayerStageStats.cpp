@@ -41,6 +41,10 @@ void PlayerStageStats::InternalInit()
 	m_iPossibleDancePoints = 0;
 	m_iCurPossibleDancePoints = 0;
 	m_iActualDancePoints = 0;
+	m_fWifeScore = 0;
+	m_fTimingScale = 0;
+	m_vOffsetVector.clear();
+	m_vNoteRowVector.clear();
 	m_iPossibleGradePoints = 0;
 	m_iCurCombo = 0;
 	m_iMaxCombo = 0;
@@ -283,6 +287,26 @@ RString PlayerStageStats::FormatPercentScore( float fPercentDancePoints )
 float PlayerStageStats::GetPercentDancePoints() const
 {
 	return MakePercentScore( m_iActualDancePoints, m_iPossibleDancePoints );
+}
+
+float PlayerStageStats::GetWifeScore() const
+{
+	return m_fWifeScore;
+}
+
+float PlayerStageStats::GetTimingScale() const
+{
+	return m_fTimingScale;
+}
+
+vector<float> PlayerStageStats::GetOffsetVector() const
+{
+	return m_vOffsetVector;
+}
+
+vector<int> PlayerStageStats::GetNoteRowVector() const
+{
+	return m_vNoteRowVector;
 }
 
 float PlayerStageStats::GetCurMaxPercentDancePoints() const

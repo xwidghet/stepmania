@@ -403,6 +403,14 @@ void MusicWheelItem::HandleMessage( const Message &msg )
 	{
 		RefreshGrades();
 	}
+	
+	/*	-- Come back to this - minack 
+	if (msg == Message_CurrentStepsP1Changed) {
+		Message msg("ChartInfo");
+		msg.SetParam("ChartKey", GAMESTATE->m_pCurSteps[PLAYER_1]->ChartKey);
+		MESSAGEMAN->Broadcast(msg);
+	}
+	*/
 
 	WheelItemBase::HandleMessage( msg );
 }

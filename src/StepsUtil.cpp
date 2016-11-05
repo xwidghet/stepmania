@@ -251,7 +251,6 @@ void StepsID::FromSteps( const Steps *p )
 	{
 		st = StepsType_Invalid;
 		dc = Difficulty_Invalid;
-		ck = p->ChartKey;
 		sDescription = "";
 		uHash = 0;
 	}
@@ -259,6 +258,7 @@ void StepsID::FromSteps( const Steps *p )
 	{
 		st = p->m_StepsType;
 		dc = p->GetDifficulty();
+		ck = p->GetChartKey();
 		if( dc == Difficulty_Edit )
 		{
 			sDescription = p->GetDescription();
@@ -305,7 +305,6 @@ Steps *StepsID::ToSteps( const Song *p, bool bAllowNull ) const
 		FAIL_M( ssprintf("%i, %i, \"%s\"", st, dc, sDescription.c_str()) );
 
 	m_Cache.Set( pRet );
-	
 	return pRet;
 }
 
@@ -336,6 +335,9 @@ void StepsID::LoadFromNode( const XNode* pNode )
 
 	pNode->GetAttrValue( "Difficulty", sTemp );
 	dc = StringToDifficulty( sTemp );
+
+	pNode->GetAttrValue("ChartKey", sTemp);
+	ck = sTemp;
 
 	if( dc == Difficulty_Edit )
 	{

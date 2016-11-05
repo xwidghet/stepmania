@@ -139,6 +139,11 @@ static HighScore FillInHighScore( const PlayerStageStats &pss, const PlayerState
 	hs.SetGrade( pss.GetGrade() );
 	hs.SetScore( pss.m_iScore );
 	hs.SetPercentDP( pss.GetPercentDancePoints() );
+	hs.SetWifeScore( pss.GetWifeScore());
+	hs.SetMusicRate(GAMESTATE->m_SongOptions.GetCurrent().m_fMusicRate);
+	hs.SetJudgeValue( pss.GetTimingScale());
+	hs.SetOffsetVector( pss.GetOffsetVector());
+	hs.SetNoteRowVector( pss.GetNoteRowVector());
 	hs.SetAliveSeconds( pss.m_fAliveSeconds );
 	hs.SetMaxCombo( pss.GetMaxCombo().m_cnt );
 	hs.SetStageAward( pss.m_StageAward );

@@ -28,6 +28,10 @@ public:
 	static float MakePercentScore( int iActual, int iPossible );
 	static RString FormatPercentScore( float fPercentScore );
 	float GetPercentDancePoints() const;
+	float GetWifeScore() const;
+	float GetTimingScale() const;
+	vector<float> GetOffsetVector() const;
+	vector<int> GetNoteRowVector() const;
 	float GetCurMaxPercentDancePoints() const;
 
 	int GetLessonScoreActual() const;
@@ -62,6 +66,10 @@ public:
 	int		m_iCurPossibleDancePoints;
 	int		m_iActualDancePoints;
 	int		m_iPossibleGradePoints;
+	float   m_fWifeScore;
+	float m_fTimingScale;
+	vector<float> m_vOffsetVector;
+	vector<int> m_vNoteRowVector;
 	int		m_iTapNoteScores[NUM_TapNoteScore];
 	int		m_iHoldNoteScores[NUM_HoldNoteScore];
 	/** @brief The Player's current combo. */
