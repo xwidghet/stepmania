@@ -418,21 +418,15 @@ void HighScoreList::AddHighScore( HighScore hs, int &iIndexOut, bool bIsMachine 
 		if( hs >= vHighScores[i] )
 			break;
 	}
-	const int iMaxScores = bIsMachine ? 
-		PREFSMAN->m_iMaxHighScoresPerListForMachine : 
-		PREFSMAN->m_iMaxHighScoresPerListForPlayer;
-	if( i < iMaxScores )
-	{
-		vHighScores.insert( vHighScores.begin()+i, hs );
-		iIndexOut = i;
-
-		// Delete extra machine high scores in RemoveAllButOneOfEachNameAndClampSize
-		// and not here so that we don't end up with less than iMaxScores after 
-		// removing HighScores with duplicate names.
-		//
-		if( !bIsMachine )
-			ClampSize( bIsMachine );
-	}
+	// Unlimited score saving - Mina
+	vHighScores.insert( vHighScores.begin()+i, hs );
+	iIndexOut = i;
+	// Delete extra machine high scores in RemoveAllButOneOfEachNameAndClampSize
+	// and not here so that we don't end up with fewer than iMaxScores after 
+	// removing HighScores with duplicate names.
+	//
+	if( !bIsMachine )
+		ClampSize( bIsMachine );
 	HighGrade = min( hs.GetGrade(), HighGrade );
 }
 

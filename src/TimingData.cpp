@@ -1362,7 +1362,6 @@ void TimingSegmentSetToLuaTable(TimingData* td, TimingSegmentType tst, lua_State
 	}
 }
 
-
 float TimingData::WhereUAtBro(float beat) {
 	if (beat < 0) return 0;
 	size_t row = BeatToNoteRow(beat);

@@ -764,6 +764,7 @@ public:
 	DEFINE_METHOD( GetCurrentMissCombo,			m_iCurMissCombo )
 	DEFINE_METHOD( GetCurrentScoreMultiplier,	m_iCurScoreMultiplier )
 	DEFINE_METHOD( GetScore,					m_iScore )
+	DEFINE_METHOD( GetWifeScore,				m_fWifeScore )
 	DEFINE_METHOD( GetCurMaxScore,				m_iCurMaxScore )
 	DEFINE_METHOD( GetTapNoteScores,			m_iTapNoteScores[Enum::Check<TapNoteScore>(L, 1)] )
 	DEFINE_METHOD( GetHoldNoteScores,			m_iHoldNoteScores[Enum::Check<HoldNoteScore>(L, 1)] )
@@ -816,6 +817,23 @@ public:
 		}
 		return 1;
 	}
+
+	// Convert to MS so lua doesn't have to
+	static int GetOffsetVector(T* p, lua_State *L) 
+	{
+		vector<float> doot = p->m_vOffsetVector;
+		for (size_t i = 0; i < doot.size(); ++i)
+			doot[i] = doot[i] * 1000;
+		LuaHelpers::CreateTableFromArray(doot, L);
+		return 1;
+	}
+
+	static int GetNoteRowVector(T* p, lua_State *L)
+	{
+		LuaHelpers::CreateTableFromArray(p->m_vNoteRowVector, L);
+		return 1;
+	}
+
 	static int GetComboList( T* p, lua_State *L )
 	{
 		lua_createtable(L, p->m_ComboList.size(), 0);
@@ -906,6 +924,9 @@ public:
 		ADD_METHOD( GetCurrentMissCombo );
 		ADD_METHOD( GetCurrentScoreMultiplier );
 		ADD_METHOD( GetScore );
+		ADD_METHOD( GetOffsetVector );
+		ADD_METHOD( GetNoteRowVector );
+		ADD_METHOD( GetWifeScore );
 		ADD_METHOD( GetCurMaxScore );
 		ADD_METHOD( GetTapNoteScores );
 		ADD_METHOD( GetHoldNoteScores );
