@@ -1455,7 +1455,7 @@ public:
 	// formerly in Song.cpp in sm-ssc private beta 1.x:
 	static int GetBPMAtBeat( T* p, lua_State *L )		{ lua_pushnumber(L, p->GetBPMAtBeat(FArg(1))); return 1; }
 	static int GetBeatFromElapsedTime( T* p, lua_State *L )	{ lua_pushnumber(L, p->GetBeatFromElapsedTime(FArg(1))); return 1; }
-	static int GetElapsedTimeFromBeat( T* p, lua_State *L )	{ lua_pushnumber(L, p->GetElapsedTimeFromBeat(FArg(1))); return 1; }
+	static int GetElapsedTimeFromBeat( T* p, lua_State *L )	{ lua_pushnumber(L, p->WhereUAtBro(FArg(1))); return 1; }
 	static int GetElapsedTimeFromNoteRow(T* p, lua_State *L) { lua_pushnumber(L, p->WhereUAtBro(IArg(1))); return 1; }
 
 	LunaTimingData()
