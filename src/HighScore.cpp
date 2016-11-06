@@ -299,6 +299,9 @@ unsigned int HighScore::GetMaxCombo() const { return m_Impl->iMaxCombo; }
 StageAward HighScore::GetStageAward() const { return m_Impl->stageAward; }
 PeakComboAward HighScore::GetPeakComboAward() const { return m_Impl->peakComboAward; }
 float HighScore::GetPercentDP() const { return m_Impl->fPercentDP; }
+float HighScore::GetWifeScore() const { return m_Impl->fWifeScore; }
+float HighScore::GetMusicRate() const { return m_Impl->fMusicRate; }
+float HighScore::GetJudgeScale() const { return m_Impl->fJudgeScale; }
 float HighScore::GetSurviveSeconds() const { return m_Impl->fSurviveSeconds; }
 float HighScore::GetSurvivalSeconds() const { return GetSurviveSeconds() + GetLifeRemainingSeconds(); }
 RString HighScore::GetModifiers() const { return m_Impl->sModifiers; }
@@ -321,7 +324,7 @@ void HighScore::SetPeakComboAward( PeakComboAward a ) { m_Impl->peakComboAward =
 void HighScore::SetPercentDP( float f ) { m_Impl->fPercentDP = f; }
 void HighScore::SetWifeScore(float f) {m_Impl->fWifeScore = f;}
 void HighScore::SetMusicRate(float f) { m_Impl->fMusicRate = f; }
-void HighScore::SetJudgeValue(float f) { m_Impl->fJudgeScale = f; }
+void HighScore::SetJudgeScale(float f) { m_Impl->fJudgeScale = f; }
 void HighScore::SetOffsetVector(vector<float> v) { m_Impl->vOffsetVector = v; }
 void HighScore::SetNoteRowVector(vector<int> v) { m_Impl->vNoteRowVector = v; }
 void HighScore::SetAliveSeconds( float f ) { m_Impl->fSurviveSeconds = f; }
@@ -581,6 +584,9 @@ public:
 	static int GetName( T* p, lua_State *L )			{ lua_pushstring(L, p->GetName() ); return 1; }
 	static int GetScore( T* p, lua_State *L )			{ lua_pushnumber(L, p->GetScore() ); return 1; }
 	static int GetPercentDP( T* p, lua_State *L )			{ lua_pushnumber(L, p->GetPercentDP() ); return 1; }
+	static int GetWifeScore(T* p, lua_State *L) { lua_pushnumber(L, p->GetWifeScore()); return 1; }
+	static int GetMusicRate(T* p, lua_State *L) { lua_pushnumber(L, p->GetMusicRate()); return 1; }
+	static int GetJudgeScale(T* p, lua_State *L) { lua_pushnumber(L, p->GetJudgeScale()); return 1; }
 	static int GetDate( T* p, lua_State *L )			{ lua_pushstring(L, p->GetDateTime().GetString() ); return 1; }
 	static int GetSurvivalSeconds( T* p, lua_State *L )			{ lua_pushnumber(L, p->GetSurvivalSeconds() ); return 1; }
 	static int IsFillInMarker( T* p, lua_State *L )
@@ -610,6 +616,9 @@ public:
 		ADD_METHOD( GetName );
 		ADD_METHOD( GetScore );
 		ADD_METHOD( GetPercentDP );
+		ADD_METHOD( GetWifeScore );
+		ADD_METHOD( GetMusicRate );
+		ADD_METHOD( GetJudgeScale );
 		ADD_METHOD( GetDate );
 		ADD_METHOD( GetSurvivalSeconds );
 		ADD_METHOD( IsFillInMarker );

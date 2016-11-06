@@ -404,7 +404,7 @@ void MusicWheelItem::HandleMessage( const Message &msg )
 		RefreshGrades();
 	}
 	
-	/*	-- Come back to this - minack 
+	/* Perhaps one day I can use this without it broadcasting 10 times every time you pick a new song - Mina
 	if (msg == Message_CurrentStepsP1Changed) {
 		Message msg("ChartInfo");
 		msg.SetParam("ChartKey", GAMESTATE->m_pCurSteps[PLAYER_1]->ChartKey);

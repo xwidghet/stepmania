@@ -2484,70 +2484,92 @@ RString Profile::MakeFileNameNoExtension( const RString &sFileNameBeginning, int
 #include "LuaBinding.h"
 
 /** @brief Allow Lua to have access to the Profile. */ 
-class LunaProfile: public Luna<Profile>
+class LunaProfile : public Luna<Profile>
 {
 public:
-	static int AddScreenshot( T* p, lua_State *L )
+	static int AddScreenshot(T* p, lua_State *L)
 	{
-		HighScore* hs= Luna<HighScore>::check(L, 1);
-		RString filename= SArg(2);
+		HighScore* hs = Luna<HighScore>::check(L, 1);
+		RString filename = SArg(2);
 		Screenshot screenshot;
-		screenshot.sFileName= filename;
-		screenshot.sMD5= BinaryToHex(CRYPTMAN->GetMD5ForFile(filename));
-		screenshot.highScore= *hs;
+		screenshot.sFileName = filename;
+		screenshot.sMD5 = BinaryToHex(CRYPTMAN->GetMD5ForFile(filename));
+		screenshot.highScore = *hs;
 		p->AddScreenshot(screenshot);
 		COMMON_RETURN_SELF;
 	}
 	DEFINE_METHOD(GetType, m_Type);
 	DEFINE_METHOD(GetPriority, m_ListPriority);
 
-	static int GetDisplayName( T* p, lua_State *L )			{ lua_pushstring(L, p->m_sDisplayName ); return 1; }
-	static int SetDisplayName( T* p, lua_State *L )
+	static int GetDisplayName(T* p, lua_State *L) { lua_pushstring(L, p->m_sDisplayName); return 1; }
+	static int SetDisplayName(T* p, lua_State *L)
 	{
-		p->m_sDisplayName= SArg(1);
+		p->m_sDisplayName = SArg(1);
 		COMMON_RETURN_SELF;
 	}
-	static int GetLastUsedHighScoreName( T* p, lua_State *L )	{ lua_pushstring(L, p->m_sLastUsedHighScoreName ); return 1; }
-	static int SetLastUsedHighScoreName( T* p, lua_State *L )
+	static int GetLastUsedHighScoreName(T* p, lua_State *L) { lua_pushstring(L, p->m_sLastUsedHighScoreName); return 1; }
+	static int SetLastUsedHighScoreName(T* p, lua_State *L)
 	{
-		p->m_sLastUsedHighScoreName= SArg(1);
+		p->m_sLastUsedHighScoreName = SArg(1);
 		COMMON_RETURN_SELF;
 	}
-	static int GetHighScoreList( T* p, lua_State *L )
+	static int GetHighScoreList(T* p, lua_State *L)
 	{
-		if( LuaBinding::CheckLuaObjectType(L, 1, "Song") )
+		if (LuaBinding::CheckLuaObjectType(L, 1, "Song"))
 		{
+			const Song *pSong = Luna<Song>::check(L, 1);
+			const Steps *pSteps = Luna<Steps>::check(L, 2);
+			HighScoreList &hsl = p->GetStepsHighScoreList(pSong, pSteps);
+			hsl.PushSelf(L);
+			return 1;
+		}
+		else if (LuaBinding::CheckLuaObjectType(L, 1, "Course"))
+		{
+			const Course *pCourse = Luna<Course>::check(L, 1);
+			const Trail *pTrail = Luna<Trail>::check(L, 2);
+			HighScoreList &hsl = p->GetCourseHighScoreList(pCourse, pTrail);
+			hsl.PushSelf(L);
+			return 1;
+		}
 
-			// REMEMBER TO MOVE DIS - Mina
-			FOREACH_CONST(Song*, SONGMAN->GetAllSongs(), pSong)
+		luaL_typerror(L, 1, "Song or Course");
+		COMMON_RETURN_SELF;
+	}
+
+	/* This function searches through each steps object loaded and aggregates 
+	all highscore entries that match the provided key in order to consolidate
+	fragmented scores achieved on the same chart that may be spread across 
+	multiple copies in different packs. This system also prevents scores from 
+	being lost due to renaming packs/switching to additional songs and so on
+	and so forth. Due to the nature of the structure of the stats.xml file
+	the search this performs may eventually become prohibitively slow, however
+	the amount of work required to fundamentally changed all highscore and steps
+	entries in the file to use chartkey/scorekeys is also at this moment, 
+	prohibitive. This returns the table of highscores directly, not a highscorelist
+	- Mina*/ 
+	static int GetHighScoresByKey(T* p, lua_State *L)
+	{
+		lua_newtable(L);
+		RString key = SArg(1);
+		FOREACH_CONST(Song*, SONGMAN->GetAllSongs(), pSong)
+		{
+			FOREACH_CONST(Steps*, (*pSong)->GetAllSteps(), pSteps)
 			{
-				if (!(*pSong)->NormallyDisplayed())
-					continue;	// skip
-
-				FOREACH_CONST(Steps*, (*pSong)->GetAllSteps(), pSteps)
-				{
-					bool doot = (*pSteps)->ChartKey == "lel";
+				if ((*pSteps)->ChartKey == key) {
+					HighScoreList &hsl = p->GetStepsHighScoreList(*pSong, *pSteps);
+					
+					for (size_t i = 0; i < hsl.vHighScores.size(); ++i)
+					{
+						hsl.vHighScores[i].PushSelf(L);
+						lua_rawseti(L, -2, i + 1);
+					}
+					LOG->Trace("matching key found");
 				}
 			}
-
-			const Song *pSong = Luna<Song>::check(L,1);
-			const Steps *pSteps = Luna<Steps>::check(L,2);
-			HighScoreList &hsl = p->GetStepsHighScoreList( pSong, pSteps );
-			hsl.PushSelf( L );
-			return 1;
 		}
-		else if( LuaBinding::CheckLuaObjectType(L, 1, "Course") )
-		{
-			const Course *pCourse = Luna<Course>::check(L,1);
-			const Trail *pTrail = Luna<Trail>::check(L,2);
-			HighScoreList &hsl = p->GetCourseHighScoreList( pCourse, pTrail );
-			hsl.PushSelf( L );
-			return 1;
-		}
-
-		luaL_typerror( L, 1, "Song or Course" );
-		COMMON_RETURN_SELF;
+		return 1;
 	}
+
 	static int GetCategoryHighScoreList( T* p, lua_State *L )
 	{
 		StepsType pStepsType = Enum::Check<StepsType>(L, 1);
@@ -2745,6 +2767,7 @@ public:
 		ADD_METHOD( GetAllUsedHighScoreNames );
 		ADD_METHOD( GetHighScoreListIfExists );
 		ADD_METHOD( GetHighScoreList );
+		ADD_METHOD( GetHighScoresByKey );
 		ADD_METHOD( GetCategoryHighScoreList );
 		ADD_METHOD( GetCharacter );
 		ADD_METHOD( SetCharacter );
