@@ -2563,7 +2563,6 @@ public:
 						hsl.vHighScores[i].PushSelf(L);
 						lua_rawseti(L, -2, i + 1);
 					}
-					LOG->Trace("matching key found");
 				}
 			}
 		}
