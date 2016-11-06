@@ -1974,6 +1974,26 @@ void Profile::LoadSongScoresFromNode( const XNode* pSongScores )
 			if( !stepsID.IsValid() )
 				WARN_AND_CONTINUE;
 
+			/* This is for updating the chartkey values for pre-existing steps entries. First
+			we do a validity check to ensure a chartkey can and has been generated. Then we 
+			load the chart the score is attached to and then rerun the validity test. This is 
+			to handle scores for which the relevant.sm has been moved or deleted and chartkeys 
+			cannot be generated or assigned. If we encounter a newly invalidated score we reload
+			it so as not to alter the entry. This way if a steps entry already has a chartkey
+			attached to it and the .sm file is moved or deleted the chartkey and score will persist
+			allowing it to be accessed by any concurrent file that shares the same key. - Mina
+			*/
+			if (songID.IsValid())
+			{
+				Song* song = songID.ToSong();
+				Steps* steps = stepsID.ToSteps(song, true);
+				if (stepsID.IsValid() && stepsID.GetDifficulty() != Difficulty_Edit) {
+					stepsID.FromSteps(steps);
+					if(!stepsID.IsValid())
+						stepsID.LoadFromNode(pSteps);
+					stepsID.CreateNode();
+				}
+			}
 			const XNode *pHighScoreListNode = pSteps->GetChild("HighScoreList");
 			if( pHighScoreListNode == NULL )
 				WARN_AND_CONTINUE;
