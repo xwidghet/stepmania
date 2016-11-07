@@ -2545,17 +2545,17 @@ public:
 	the search this performs may eventually become prohibitively slow, however
 	the amount of work required to fundamentally changed all highscore and steps
 	entries in the file to use chartkey/scorekeys is also at this moment, 
-	prohibitive. This returns the table of highscores directly, not a highscorelist
-	- Mina*/ 
+	prohibitive. This returns the table of highscores directly, not a highscorelist.
+	Need to remember to make this a generalized function that can be called by
+	various lua functions or internal functions. - Mina*/ 
 	static int GetHighScoresByKey(T* p, lua_State *L)
 	{
 		lua_newtable(L);
-		RString key = SArg(1);
 		FOREACH_CONST(Song*, SONGMAN->GetAllSongs(), pSong)
 		{
 			FOREACH_CONST(Steps*, (*pSong)->GetAllSteps(), pSteps)
 			{
-				if ((*pSteps)->ChartKey == key) {
+				if ((*pSteps)->ChartKey == SArg(1)) {
 					HighScoreList &hsl = p->GetStepsHighScoreList(*pSong, *pSteps);
 					
 					for (size_t i = 0; i < hsl.vHighScores.size(); ++i)

@@ -136,10 +136,9 @@ public:
 	// Mina temp stuff
 	size_t nervpos = 0; // hacky way to keep track of where we are in the non-empty row vector - Mina
 	float wife2(float maxms, float avedeviation, float power, int upperbound, int lowerbound);
-	float maxwifescore = 0.0001f;
+	float maxwifescore = 0.0001f; // hurr /0 - Mina
 	float curwifescore = 0;
 	int totalwifescore;
-	vector<float> wifedeviance;
 
 protected:
 	void UpdateTapNotesMissedOlderThan( float fMissIfOlderThanThisBeat );

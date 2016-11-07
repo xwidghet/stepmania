@@ -823,7 +823,7 @@ public:
 		return 1;
 	}	
 
-	static int GetWifeChartKey(T* p, lua_State *L)
+	static int GetChartKey(T* p, lua_State *L)
 	{
 		lua_pushstring(L, p->GetChartKey());
 		return 1;
@@ -845,7 +845,7 @@ public:
 		ADD_METHOD( GetChartName );
 		//ADD_METHOD( GetSMNoteData );
 		ADD_METHOD( GetStepsType );
-		ADD_METHOD( GetWifeChartKey );
+		ADD_METHOD( GetChartKey );
 		ADD_METHOD( IsAnEdit );
 		ADD_METHOD( IsAutogen );
 		ADD_METHOD( IsAPlayerEdit );
