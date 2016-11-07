@@ -764,6 +764,26 @@ public:
 		rv.PushSelf(L);
 		return 1;
 	}
+	// Sigh -Mina
+	static int GetRelevantRadars(T* p, lua_State *L)
+	{
+		vector<int> relevants;
+		PlayerNumber pn = PLAYER_1;
+		if (!lua_isnil(L, 1))
+			pn = Enum::Check<PlayerNumber>(L, 1);
+
+		RadarValues &rv = const_cast<RadarValues &>(p->GetRadarValues(pn));
+		relevants.push_back(static_cast<int>(rv[5]));  //notes
+		relevants.push_back(static_cast<int>(rv[7]));  //jumps
+		relevants.push_back(static_cast<int>(rv[10])); //hands
+		relevants.push_back(static_cast<int>(rv[8]));  //holds
+		relevants.push_back(static_cast<int>(rv[9]));  //mines
+		relevants.push_back(static_cast<int>(rv[11])); //rolls
+		relevants.push_back(static_cast<int>(rv[12])); //lifts
+		relevants.push_back(static_cast<int>(rv[13])); //fakes
+		LuaHelpers::CreateTableFromArray(relevants, L);
+		return 1;
+	}
 	static int GetTimingData( T* p, lua_State *L )
 	{
 		p->GetTimingData()->PushSelf(L);
@@ -841,6 +861,7 @@ public:
 		ADD_METHOD( HasSignificantTimingChanges );
 		ADD_METHOD( HasAttacks );
 		ADD_METHOD( GetRadarValues );
+		ADD_METHOD( GetRelevantRadars );
 		ADD_METHOD( GetTimingData );
 		ADD_METHOD( GetChartName );
 		//ADD_METHOD( GetSMNoteData );
