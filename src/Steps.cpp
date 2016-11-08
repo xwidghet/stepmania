@@ -369,8 +369,7 @@ void Steps::Decompress(bool isGameplay)
 		if (isGameplay)
 		{
 			m_pNoteData->LogNonEmptyRows(NonEmptyRowVector);
-			// don't care about anything with under 10 rows of taps
-			if (NonEmptyRowVector.size() <= 10 || m_pNoteData->IsEmpty())
+			if (m_pNoteData->IsEmpty())
 				return;
 
 			vector<float> etar;
@@ -381,7 +380,7 @@ void Steps::Decompress(bool isGameplay)
 				etar.push_back(td->GetElapsedTimeFromBeatNoOffset(NoteRowToBeat(i)));
 
 			SetElapsedTimesAtAllRows(etar);
-			ChartKey = GenerateChartKey(m_pNoteData, etar);
+			ChartKey = GenerateChartKey(m_pNoteData, td);
 		}
 		return;	// already decompressed
 	}
@@ -460,8 +459,7 @@ void Steps::Decompress(bool isGameplay)
 	if (isGameplay)
 	{
 		m_pNoteData->LogNonEmptyRows(NonEmptyRowVector);
-		// don't care about anything with under 10 rows of taps
-		if (NonEmptyRowVector.size() <= 10 || m_pNoteData->IsEmpty())
+		if (m_pNoteData->IsEmpty())
 			return;
 
 		vector<float> etar;
@@ -472,17 +470,15 @@ void Steps::Decompress(bool isGameplay)
 			etar.push_back(td->GetElapsedTimeFromBeatNoOffset(NoteRowToBeat(i)));
 
 		SetElapsedTimesAtAllRows(etar);
-		ChartKey = GenerateChartKey(m_pNoteData, etar);
+		ChartKey = GenerateChartKey(m_pNoteData, td);
 	}
 }
 
-RString Steps::GenerateChartKey(HiddenPtr<NoteData> nd, vector<float>& etar)
+RString Steps::GenerateChartKey(HiddenPtr<NoteData> nd, TimingData *td)
 {
 	RString k = "";
 	RString o = "";
-	int m = 1000;
-	float fso = etar[nd->GetFirstRow()] * m;
-	int et = 0;
+	float bpm;
 
 	for (size_t r = 0; r < NonEmptyRowVector.size(); r++)
 	{
@@ -492,8 +488,9 @@ RString Steps::GenerateChartKey(HiddenPtr<NoteData> nd, vector<float>& etar)
 			const TapNote &tn = nd->GetTapNote(t, row);
 			k.append(to_string(tn.type));
 		}
-		k.append(to_string(et));
-		et = lround(etar[row] * m - fso);
+		bpm = td->GetBPMAtRow(row);
+		bpm = static_cast<int>(bpm+0.374643f);
+		k.append(to_string(bpm));
 	}
 	
 	/*	Don't need this for now - Mina
