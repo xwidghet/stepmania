@@ -54,6 +54,7 @@ public:
 	void Compress() const;
 	void Decompress(bool isGameplay) const;
 	void Decompress(bool isGameplay);
+	
 	/** 
 	 * @brief Determine if these steps were created by the autogenerator.
 	 * @return true if they were, false otherwise.
@@ -173,7 +174,13 @@ public:
 	vector<float> ElapsedTimesAtAllRows;
 	void SetElapsedTimesAtAllRows(vector<float>& etar) { ElapsedTimesAtAllRows = etar; };
 	void UnsetElapsedTimesAtAllRows() { std::vector<float> emptyVector; ElapsedTimesAtAllRows.swap(emptyVector); };
-
+	vector<vector<float>> ProcessTrack(HiddenPtr<NoteData> nd, vector<float>& etar, int t, float IntervalSpan);
+	float MSD = 0;
+	float CalcD(HiddenPtr<NoteData> nd, vector<float>& etar);
+	float CalcChisel(vector<float>& aggleft, vector<float>& aggright, float res);
+	float CalcInternal(float x, float y);
+	int goop(HiddenPtr<NoteData> nd, vector<float>& etar);
+	float tfun(float maxms, float avedeviation, float power, int upperbound, int lowerbound);
 	vector<float> ElapsedTimesAtTapRows;
 	vector<float> GetElapsedTimesAtTapRows() { return ElapsedTimesAtTapRows; }
 	void SetElapsedTimesAtTapRows(vector<float> &etat) { ElapsedTimesAtTapRows = etat; };
@@ -186,9 +193,11 @@ public:
 	that we have to do it as few times as possible.*/
 	RString ChartKey = "Invalid";
 	RString ChartKeyRecord = "Invalid";
-	RString GetChartKey() const;
+	RString GetChartKey() const { return Real()->ChartKey; }
+	float GetMSD() const { return Real()->MSD; }
 	RString GetChartKeyRecord() const;
 	void SetChartKey(const RString &k)  { this->ChartKey = k; };
+	void SetMSD(const float &k) { this->MSD = k; };
 
 	/* This is a reimplementation of the lua version of the script to generate chart keys, except this time
 	using the notedata stored in game memory immediately after reading it than parsing it using lua. - Mina */

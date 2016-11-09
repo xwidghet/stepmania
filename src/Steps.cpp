@@ -381,6 +381,7 @@ void Steps::Decompress(bool isGameplay)
 
 			SetElapsedTimesAtAllRows(etar);
 			ChartKey = GenerateChartKey(m_pNoteData, td);
+			MSD = CalcD(m_pNoteData, etar);
 		}
 		return;	// already decompressed
 	}
@@ -471,6 +472,146 @@ void Steps::Decompress(bool isGameplay)
 
 		SetElapsedTimesAtAllRows(etar);
 		ChartKey = GenerateChartKey(m_pNoteData, td);
+		MSD = CalcD(m_pNoteData, etar);
+	}
+}
+
+float Steps::tfun(float maxms, float avedeviation, float power, int upperbound, int lowerbound)
+{
+	float y = 1 - pow(2, -1 * maxms*maxms / (avedeviation*avedeviation));
+	y = pow(y, power);
+	return (upperbound - lowerbound)*(1 - y) + lowerbound;
+}
+
+vector<vector<float>> Steps::ProcessTrack(HiddenPtr<NoteData> nd, vector<float>& etar, int t, float IntervalSpan)
+{
+	//LOG->Trace("Track: %i", t);
+	int Interval = 1;
+	float last = -5.f;
+	vector<vector<float>> AllIntervals;
+	vector<float> CurrentInterval;
+	float Timestamp;
+	for (size_t r = 0; r < NonEmptyRowVector.size(); r++)
+	{
+		int row = NonEmptyRowVector[r];
+		if (etar[row] >= Interval * IntervalSpan) {
+			AllIntervals.push_back(CurrentInterval);
+			//LOG->Trace("New Interval: %i", Interval);
+			CurrentInterval.clear();
+			Interval += 1;
+		}
+
+		const TapNote &tn = nd->GetTapNote(t, row);
+		if (tn.type == TapNoteType_Tap || tn.type == TapNoteType_HoldHead) {
+			Timestamp = 1000*(etar[row] - last);
+			last = etar[row];
+			CurrentInterval.push_back(Timestamp);
+			//LOG->Trace("Time: %f", Timestamp);
+		}	
+	}
+	return AllIntervals;
+}
+
+float Steps::CalcD(HiddenPtr<NoteData> nd, vector<float>& etar)
+{
+	LOG->Warn(m_pSong->GetMainTitle());
+	if (nd->GetNumTracks() != 4)
+		return(0);
+
+	vector<vector<float>> trackleft = ProcessTrack(nd, etar, 0, 0.5f);
+	vector<vector<float>> trackdown = ProcessTrack(nd, etar, 1, 0.5f);
+	vector<vector<float>> trackup = ProcessTrack(nd, etar, 2, 0.5f);
+	vector<vector<float>> trackright = ProcessTrack(nd, etar, 3, 0.5f);
+
+	vector<float> aggleft;
+	vector<float> aggright;
+
+	for (size_t i = 0; i < trackleft.size(); i++) {
+		aggleft.push_back( 2 * static_cast<float>(trackleft[i].size() + trackdown[i].size()));
+		//LOG->Trace("Notes left: %i", aggleft[i]);
+	}
+
+	for (size_t i = 0; i < trackup.size(); i++) {
+		aggright.push_back(2 * static_cast<float>(trackup[i].size() + trackright[i].size()));
+		//LOG->Trace("Notes left: %i", agg[i]);
+	}
+
+	//LOG->Trace("Res 0.25: %f", CalcChisel(aggleft, aggright, 0.25));
+
+	return CalcChisel(aggleft, aggright, 0.01);
+}
+
+float Steps::CalcChisel(vector<float>& aggleft, vector<float>& aggright, float res)
+{
+
+	float perc = 0;
+	float pskill = res;
+	do {
+		float gotpoints = 0;
+		float maxpoints = 0;
+		for (size_t i = 0; i < aggleft.size(); i++) {
+			gotpoints += aggleft[i] * CalcInternal(pskill, aggleft[i]);
+			maxpoints += aggleft[i];
+			//LOG->Trace("pskill: %f", pskill);
+			//LOG->Trace("diff: %f", aggleft[i]);
+			//LOG->Trace("calcinternal %f", CalcInternal(pskill, aggleft[i]));
+		}
+
+		for (size_t i = 0; i < aggright.size(); i++) {
+			gotpoints += aggright[i] * CalcInternal(pskill, aggright[i]);
+			maxpoints += aggright[i];
+			//LOG->Trace("maxpoints: %i", maxpoints);
+		}
+		perc = gotpoints / maxpoints;
+		//LOG->Trace("Pskill: %f", pskill);
+		//LOG->Trace("Percent: %f", perc);
+		pskill += res;
+	} while (perc < 0.93f);
+
+	return pskill;
+}
+
+float Steps::CalcInternal(float x, float y)
+{
+	if (x > y)
+		return 1.f;
+	float prop = (x / y) * (x/y);
+	//LOG->Trace("%f", prop);
+	float test = 180.f - (180.f*prop);
+	//LOG->Trace("%f", test);
+	return tfun(test, 95.f, 2.f, 2, -8);
+}
+
+
+int Steps::goop(HiddenPtr<NoteData> nd, vector<float>& etar)
+{
+	vector<vector<int>> doot;
+	vector<int> scoot;
+	int intN = 1;
+	float intI = 0.5f;
+	int intT = 0;
+	vector<int> intervaltaps;
+
+	for (size_t r = 0; r < NonEmptyRowVector.size(); r++)
+	{
+		int row = NonEmptyRowVector[r];
+		if (etar[row] >= intN * intI) {
+			doot.push_back(scoot);
+			scoot.clear();
+			intN += 1;
+
+			intervaltaps.push_back(intT / intI);
+			intT = 0;
+		}
+		scoot.push_back(row);
+		for (int t = 0; t < nd->GetNumTracks(); ++t)
+		{
+			const TapNote &tn = nd->GetTapNote(t, row);
+			if (tn.type == TapNoteType_Tap || tn.type == TapNoteType_HoldHead) {
+				intT += 1;
+			}
+
+		}
 	}
 }
 
@@ -492,37 +633,6 @@ RString Steps::GenerateChartKey(HiddenPtr<NoteData> nd, TimingData *td)
 		bpm = static_cast<int>(bpm+0.374643f);
 		k.append(to_string(bpm));
 	}
-	
-	/*	Don't need this for now - Mina
-	vector<vector<int>> doot;
-	vector<int> scoot;
-	int intN = 1;
-	float intI = 0.5f;
-	int intT = 0;
-	vector<int> intervaltaps;
-	
-	for (size_t r = 0; r < NonEmptyRowVector.size(); r++)
-	{
-		int row = NonEmptyRowVector[r];
-		if (etar[row] >= intN * intI) {
-			doot.push_back(scoot);
-			scoot.clear();
-			intN += 1;
-
-			intervaltaps.push_back(intT/intI);
-			intT = 0;
-		}
-		scoot.push_back(row);
-		for (int t = 0; t < nd->GetNumTracks(); ++t)
-		{
-			const TapNote &tn = nd->GetTapNote(t, row);
-			if (tn.type == TapNoteType_Tap || tn.type == TapNoteType_HoldHead) {
-				intT += 1;
-			}
-
-		}
-	}
-	*/
 
 	//ChartKeyRecord = k;
 	o.append("X");	// I was thinking of using "C" to indicate chart.. however.. X is cooler... - Mina
@@ -715,10 +825,6 @@ void Steps::SetCachedRadarValues( const RadarValues v[NUM_PLAYERS] )
 	m_bAreCachedRadarValuesJustLoaded = true;
 }
 
-RString Steps::GetChartKey() const { 
-	return ChartKey; 
-};
-
 RString Steps::GetChartKeyRecord() const {
 	return ChartKeyRecord;
 };
@@ -846,6 +952,12 @@ public:
 		return 1;
 	}
 
+	static int GetMSD(T* p, lua_State *L)
+	{
+		lua_pushnumber(L, p->GetMSD());
+		return 1;
+	}
+
 	LunaSteps()
 	{
 		ADD_METHOD( GetAuthorCredit );
@@ -864,6 +976,7 @@ public:
 		//ADD_METHOD( GetSMNoteData );
 		ADD_METHOD( GetStepsType );
 		ADD_METHOD( GetChartKey );
+		ADD_METHOD( GetMSD );
 		ADD_METHOD( IsAnEdit );
 		ADD_METHOD( IsAutogen );
 		ADD_METHOD( IsAPlayerEdit );
