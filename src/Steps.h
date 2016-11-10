@@ -174,10 +174,12 @@ public:
 	vector<float> ElapsedTimesAtAllRows;
 	void SetElapsedTimesAtAllRows(vector<float>& etar) { ElapsedTimesAtAllRows = etar; };
 	void UnsetElapsedTimesAtAllRows() { std::vector<float> emptyVector; ElapsedTimesAtAllRows.swap(emptyVector); };
-	vector<vector<float>> ProcessTrack(HiddenPtr<NoteData> nd, vector<float>& etar, int t, float IntervalSpan);
+	vector<vector<float>> ProcessTrack(HiddenPtr<NoteData>& nd, vector<float>& etar, int t, float IntervalSpan);
+	vector<vector<float>> ProcessTrack(NoteData& nd, vector<float>& etar, int t, float IntervalSpan);
 	float MSD = 0;
-	float CalcD(HiddenPtr<NoteData> nd, vector<float>& etar);
-	float CalcChisel(vector<float>& aggleft, vector<float>& aggright, float res);
+	float CalcD(HiddenPtr<NoteData>& nd, vector<float>& etar, float goal = 0.93f);
+	float CalcD(NoteData& nd, vector<float>& etar, float goal = 0.93f);
+	float CalcChisel(float pskill, vector<float>& aggleft, vector<float>& aggright, float res, int iter, float goal);
 	float CalcInternal(float x, float y);
 	int goop(HiddenPtr<NoteData> nd, vector<float>& etar);
 	float tfun(float maxms, float avedeviation, float power, int upperbound, int lowerbound);
@@ -201,7 +203,7 @@ public:
 
 	/* This is a reimplementation of the lua version of the script to generate chart keys, except this time
 	using the notedata stored in game memory immediately after reading it than parsing it using lua. - Mina */
-	RString GenerateChartKey(HiddenPtr<NoteData> nd, TimingData *td);
+	RString GenerateChartKey(HiddenPtr<NoteData>& nd, TimingData *td);
 
 	/**
 	 * @brief Determine if the Steps have any major timing changes during gameplay.

@@ -483,7 +483,7 @@ float Steps::tfun(float maxms, float avedeviation, float power, int upperbound, 
 	return (upperbound - lowerbound)*(1 - y) + lowerbound;
 }
 
-vector<vector<float>> Steps::ProcessTrack(HiddenPtr<NoteData> nd, vector<float>& etar, int t, float IntervalSpan)
+vector<vector<float>> Steps::ProcessTrack(HiddenPtr<NoteData>& nd, vector<float>& etar, int t, float IntervalSpan)
 {
 	//LOG->Trace("Track: %i", t);
 	int Interval = 1;
@@ -512,7 +512,37 @@ vector<vector<float>> Steps::ProcessTrack(HiddenPtr<NoteData> nd, vector<float>&
 	return AllIntervals;
 }
 
-float Steps::CalcD(HiddenPtr<NoteData> nd, vector<float>& etar)
+vector<vector<float>> Steps::ProcessTrack(NoteData& nd, vector<float>& etar, int t, float IntervalSpan)
+{
+	//LOG->Trace("Track: %i", t);
+	int Interval = 1;
+	float last = -5.f;
+	vector<vector<float>> AllIntervals;
+	vector<float> CurrentInterval;
+	float Timestamp;
+	for (size_t r = 0; r < NonEmptyRowVector.size(); r++)
+	{
+		int row = NonEmptyRowVector[r];
+		if (etar[row] >= Interval * IntervalSpan) {
+			AllIntervals.push_back(CurrentInterval);
+			//LOG->Trace("New Interval: %i", Interval);
+			CurrentInterval.clear();
+			Interval += 1;
+		}
+
+		const TapNote &tn = nd.GetTapNote(t, row);
+		if (tn.type == TapNoteType_Tap || tn.type == TapNoteType_HoldHead) {
+			Timestamp = 1000 * (etar[row] - last);
+			last = etar[row];
+			CurrentInterval.push_back(Timestamp);
+			//LOG->Trace("Time: %f", Timestamp);
+		}
+	}
+	return AllIntervals;
+}
+
+
+float Steps::CalcD(HiddenPtr<NoteData>& nd, vector<float>& etar, float goal)
 {
 	LOG->Warn(m_pSong->GetMainTitle());
 	if (nd->GetNumTracks() != 4)
@@ -538,37 +568,58 @@ float Steps::CalcD(HiddenPtr<NoteData> nd, vector<float>& etar)
 
 	//LOG->Trace("Res 0.25: %f", CalcChisel(aggleft, aggright, 0.25));
 
-	return CalcChisel(aggleft, aggright, 0.01);
+	return CalcChisel(0.f,aggleft, aggright, 10.24f, 1, goal);
 }
 
-float Steps::CalcChisel(vector<float>& aggleft, vector<float>& aggright, float res)
+float Steps::CalcD(NoteData& nd, vector<float>& etar, float goal)
 {
+	LOG->Warn(m_pSong->GetMainTitle());
+	if (nd.GetNumTracks() != 4)
+		return(0);
 
+	vector<vector<float>> trackleft = ProcessTrack(nd, etar, 0, 0.5f);
+	vector<vector<float>> trackdown = ProcessTrack(nd, etar, 1, 0.5f);
+	vector<vector<float>> trackup = ProcessTrack(nd, etar, 2, 0.5f);
+	vector<vector<float>> trackright = ProcessTrack(nd, etar, 3, 0.5f);
+
+	vector<float> aggleft;
+	vector<float> aggright;
+
+	for (size_t i = 0; i < trackleft.size(); i++) {
+		aggleft.push_back(2 * static_cast<float>(trackleft[i].size() + trackdown[i].size()));
+		//LOG->Trace("Notes left: %i", aggleft[i]);
+	}
+
+	for (size_t i = 0; i < trackup.size(); i++) {
+		aggright.push_back(2 * static_cast<float>(trackup[i].size() + trackright[i].size()));
+		//LOG->Trace("Notes left: %i", agg[i]);
+	}
+
+	//LOG->Trace("Res 0.25: %f", CalcChisel(aggleft, aggright, 0.25));
+
+	return CalcChisel(0.f, aggleft, aggright, 10.24f, 1, goal);
+}
+
+float Steps::CalcChisel(float pskill, vector<float>& aggleft, vector<float>& aggright, float res, int iter, float goal)
+{
 	float perc = 0;
-	float pskill = res;
 	do {
+		pskill += res;
+		//LOG->Trace("%f", pskill);
 		float gotpoints = 0;
 		float maxpoints = 0;
 		for (size_t i = 0; i < aggleft.size(); i++) {
 			gotpoints += aggleft[i] * CalcInternal(pskill, aggleft[i]);
 			maxpoints += aggleft[i];
-			//LOG->Trace("pskill: %f", pskill);
-			//LOG->Trace("diff: %f", aggleft[i]);
-			//LOG->Trace("calcinternal %f", CalcInternal(pskill, aggleft[i]));
-		}
-
-		for (size_t i = 0; i < aggright.size(); i++) {
 			gotpoints += aggright[i] * CalcInternal(pskill, aggright[i]);
 			maxpoints += aggright[i];
-			//LOG->Trace("maxpoints: %i", maxpoints);
 		}
 		perc = gotpoints / maxpoints;
-		//LOG->Trace("Pskill: %f", pskill);
-		//LOG->Trace("Percent: %f", perc);
-		pskill += res;
-	} while (perc < 0.93f);
+	} while (perc < goal);
 
-	return pskill;
+	if(iter == 11)
+		return pskill;
+	CalcChisel(pskill - res,aggleft, aggright, res / 2.f, iter+1, goal);
 }
 
 float Steps::CalcInternal(float x, float y)
@@ -615,7 +666,7 @@ int Steps::goop(HiddenPtr<NoteData> nd, vector<float>& etar)
 	}
 }
 
-RString Steps::GenerateChartKey(HiddenPtr<NoteData> nd, TimingData *td)
+RString Steps::GenerateChartKey(HiddenPtr<NoteData>& nd, TimingData *td)
 {
 	RString k = "";
 	RString o = "";
@@ -958,6 +1009,13 @@ public:
 		return 1;
 	}
 
+	static int GetSSR(T* p, lua_State *L)
+	{
+		vector<float>& etar = p->GetTimingData()->GetElapsedTimesAtAllRows();
+		lua_pushnumber(L, p->CalcD(p->GetNoteData(), etar, FArg(1)));
+		return 1;
+	}
+
 	LunaSteps()
 	{
 		ADD_METHOD( GetAuthorCredit );
@@ -977,6 +1035,7 @@ public:
 		ADD_METHOD( GetStepsType );
 		ADD_METHOD( GetChartKey );
 		ADD_METHOD( GetMSD );
+		ADD_METHOD( GetSSR );
 		ADD_METHOD( IsAnEdit );
 		ADD_METHOD( IsAutogen );
 		ADD_METHOD( IsAPlayerEdit );

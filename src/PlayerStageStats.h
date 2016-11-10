@@ -68,6 +68,7 @@ public:
 	int		m_iPossibleGradePoints;
 	float   m_fWifeScore;
 	float m_fTimingScale;
+	float m_fSSR;
 	vector<float> m_vOffsetVector;
 	vector<int> m_vNoteRowVector;
 	int		m_iTapNoteScores[NUM_TapNoteScore];
