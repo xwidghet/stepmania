@@ -2550,6 +2550,7 @@ public:
 	various lua functions or internal functions. - Mina*/ 
 	static int GetHighScoresByKey(T* p, lua_State *L)
 	{
+		size_t doot = 0;
 		lua_newtable(L);
 		FOREACH_CONST(Song*, SONGMAN->GetAllSongs(), pSong)
 		{
@@ -2561,8 +2562,9 @@ public:
 					for (size_t i = 0; i < hsl.vHighScores.size(); ++i)
 					{
 						hsl.vHighScores[i].PushSelf(L);
-						lua_rawseti(L, -2, i + 1);
+						lua_rawseti(L, -2, doot + i + 1);
 					}
+					doot += hsl.vHighScores.size();
 				}
 			}
 		}

@@ -180,7 +180,7 @@ public:
 	float CalcD(HiddenPtr<NoteData>& nd, vector<float>& etar, float goal = 0.93f);
 	float CalcD(NoteData& nd, vector<float>& etar, float goal = 0.93f);
 	float CalcChisel(float pskill, vector<float>& aggleft, vector<float>& aggright, float res, int iter, float goal);
-	float CalcInternal(float x, float y);
+	float CalcInternal(float x, vector<float>& v);
 	int goop(HiddenPtr<NoteData> nd, vector<float>& etar);
 	float tfun(float maxms, float avedeviation, float power, int upperbound, int lowerbound);
 	vector<float> ElapsedTimesAtTapRows;

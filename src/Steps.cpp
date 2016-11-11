@@ -544,7 +544,7 @@ vector<vector<float>> Steps::ProcessTrack(NoteData& nd, vector<float>& etar, int
 
 float Steps::CalcD(HiddenPtr<NoteData>& nd, vector<float>& etar, float goal)
 {
-	LOG->Warn(m_pSong->GetMainTitle());
+	//LOG->Warn(m_pSong->GetMainTitle());
 	if (nd->GetNumTracks() != 4)
 		return(0);
 
@@ -606,33 +606,34 @@ float Steps::CalcChisel(float pskill, vector<float>& aggleft, vector<float>& agg
 	do {
 		pskill += res;
 		//LOG->Trace("%f", pskill);
-		float gotpoints = 0;
+		float gotpoints = CalcInternal(pskill, aggleft) + CalcInternal(pskill, aggright);;
 		float maxpoints = 0;
-		for (size_t i = 0; i < aggleft.size(); i++) {
-			gotpoints += aggleft[i] * CalcInternal(pskill, aggleft[i]);
-			maxpoints += aggleft[i];
-			gotpoints += aggright[i] * CalcInternal(pskill, aggright[i]);
-			maxpoints += aggright[i];
-		}
+		for (size_t i = 0; i < aggleft.size(); i++)
+			maxpoints += aggleft[i] + aggright[i];
 		perc = gotpoints / maxpoints;
 	} while (perc < goal);
 
 	if(iter == 11)
 		return pskill;
 	CalcChisel(pskill - res,aggleft, aggright, res / 2.f, iter+1, goal);
+	return 0.f;
 }
 
-float Steps::CalcInternal(float x, float y)
+float Steps::CalcInternal(float x, vector<float>& v)
 {
-	if (x > y)
-		return 1.f;
-	float prop = (x / y) * (x/y);
-	//LOG->Trace("%f", prop);
-	float test = 180.f - (180.f*prop);
-	//LOG->Trace("%f", test);
-	return tfun(test, 95.f, 2.f, 2, -8);
+	float o;
+	for (size_t i = 0; i < v.size(); i++) {
+		if (x > v[i])
+			o += v[i];
+		else
+		{
+			float prop = (x / v[i]) * (x / v[i]);
+			float test = 180.f - (180.f*prop);
+			o += v[i] * tfun(test, 95.f, 2.f, 2, -8);
+		}
+	}
+	return o;
 }
-
 
 int Steps::goop(HiddenPtr<NoteData> nd, vector<float>& etar)
 {
@@ -664,6 +665,7 @@ int Steps::goop(HiddenPtr<NoteData> nd, vector<float>& etar)
 
 		}
 	}
+	return 1;
 }
 
 RString Steps::GenerateChartKey(HiddenPtr<NoteData>& nd, TimingData *td)
