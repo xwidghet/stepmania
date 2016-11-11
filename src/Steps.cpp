@@ -602,7 +602,7 @@ float Steps::CalcD(NoteData& nd, vector<float>& etar, float goal)
 
 float Steps::CalcChisel(float pskill, vector<float>& aggleft, vector<float>& aggright, float res, int iter, float goal)
 {
-	float perc = 0;
+	float perc = 0.f;
 	do {
 		pskill += res;
 		//LOG->Trace("%f", pskill);
@@ -615,13 +615,12 @@ float Steps::CalcChisel(float pskill, vector<float>& aggleft, vector<float>& agg
 
 	if(iter == 11)
 		return pskill;
-	CalcChisel(pskill - res,aggleft, aggright, res / 2.f, iter+1, goal);
-	return 0.f;
+	return CalcChisel(pskill - res,aggleft, aggright, res / 2.f, iter+1, goal);
 }
 
 float Steps::CalcInternal(float x, vector<float>& v)
 {
-	float o;
+	float o = 0.f;
 	for (size_t i = 0; i < v.size(); i++) {
 		if (x > v[i])
 			o += v[i];

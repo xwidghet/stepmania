@@ -2004,6 +2004,18 @@ void Profile::LoadSongScoresFromNode( const XNode* pSongScores )
 	}
 }
 
+float Profile::scoreagg(vector<float> invector) {
+	float skillrating = -1;
+	double sum;
+	do {
+		skillrating++;
+		sum = 0;
+		for (int i = 0; i < invector.size(); i++) {
+			sum += max(0.f, 2.f / erfc(0.1*(invector[i] - skillrating)) - 1.5);
+		}
+	} while (pow(2, skillrating * 0.1) < sum);
+	return skillrating;
+}
 
 XNode* Profile::SaveCourseScoresCreateNode() const
 {

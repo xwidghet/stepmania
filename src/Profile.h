@@ -311,7 +311,7 @@ public:
 	const HighScoreList& GetCategoryHighScoreList( StepsType st, RankingCategory rc ) const;
 	int GetCategoryNumTimesPlayed( StepsType st ) const;
 	void IncrementCategoryPlayCount( StepsType st, RankingCategory rc );
-
+	float scoreagg(vector<float>);
 
 	// Screenshot Data
 	vector<Screenshot> m_vScreenshots;
