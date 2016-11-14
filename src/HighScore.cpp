@@ -529,8 +529,8 @@ void HighScoreList::ClampSize( bool bIsMachine )
 	const int iMaxScores = bIsMachine ? 
 		PREFSMAN->m_iMaxHighScoresPerListForMachine : 
 		PREFSMAN->m_iMaxHighScoresPerListForPlayer;
-	if( vHighScores.size() > unsigned(iMaxScores) )
-		vHighScores.erase( vHighScores.begin()+iMaxScores, vHighScores.end() );
+	//if( vHighScores.size() > unsigned(iMaxScores) )
+		//vHighScores.erase( vHighScores.begin()+iMaxScores, vHighScores.end() );
 }
 
 void HighScoreList::MergeFromOtherHSL(HighScoreList& other, bool is_machine)
