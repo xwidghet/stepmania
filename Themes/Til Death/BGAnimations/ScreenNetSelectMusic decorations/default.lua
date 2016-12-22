@@ -69,7 +69,7 @@ t[#t+1] = LoadFont("Common Normal") .. {
 		if song ~= nil then
 			seconds = song:GetStepsSeconds() --song:MusicLengthSeconds()
 			self:settext(SecondsToMMSS(seconds))
-			self:diffuse(getSongLengthColor(seconds))
+			--self:diffuse(getSongLengthColor(seconds))--Function no longer in color_config
 		else
 			self:settext("")
 		end
