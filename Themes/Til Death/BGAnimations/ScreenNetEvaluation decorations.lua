@@ -8,7 +8,7 @@ t[#t+1] = Def.Quad{
 };
 
 t[#t+1] = LoadFont("Common Normal")..{
-	InitCommand=cmd(xy,SCREEN_CENTER_X+5,SCREEN_TOP+213;zoom,0.50;halign,1;color,color("0,0,0,1"));
+	InitCommand=cmd(xy,SCREEN_CENTER_X+5,SCREEN_TOP+213;zoom,0.50;halign,1;);
 	BeginCommand=cmd(queuecommand,"Set");
 	SetCommand=function(self) 
 		self:settext("Online Scores")
