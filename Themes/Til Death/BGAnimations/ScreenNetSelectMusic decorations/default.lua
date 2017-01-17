@@ -12,6 +12,7 @@ t[#t+1] = LoadActor("msd")
 t[#t+1] = LoadActor("songsearch")
 t[#t+1] = LoadActor("tabs")
 t[#t+1] = LoadActor("score")
+t[#t+1] = LoadActor("filter")
 
 local g = Def.ActorFrame{
 	TabChangedMessageCommand=function(self)
