@@ -194,6 +194,8 @@ if IsUsingWideScreen() == true then
 	cdtitlemaxheight = 30
 	curateX = 425
 	curateY = SCREEN_CENTER_Y-35
+	tierrateX = frameX+415
+	tierrateY = frameY-294
 end
 
 --4:3 ratio.
@@ -229,6 +231,8 @@ if not IsUsingWideScreen() == true then
 	cdtitlemaxheight = 60
 	curateX = SCREEN_CENTER_X-20
 	curateY = SCREEN_CENTER_Y-72
+	tierrateX = frameX+242
+	tierrateY = frameY-167
 end
 
 --Hacky way of fixing these ratios outside of 16:9 and 4:3. I'm not doing 3:4 or 1:1 ratio support unless there's good reasons to do those. -Misterkister
@@ -242,6 +246,8 @@ difficultyX = frameX+400
 cdtitleY = capWideScale(get43size(350),270)
 infoboxwidth = 85
 lengthy = capWideScale(get43size(185),170)
+tierrateX = frameX+380
+tierrateY = frameY-294
 
 end
 
@@ -254,6 +260,7 @@ difficultyX = frameX+305
 cdtitleY = capWideScale(get43size(290),270)
 cdtitleX = capWideScale(get43size(344),394)+60
 maxcomboX = frameX+180
+maxcomboY = frameY-182
 
 end
 
@@ -283,6 +290,16 @@ datescoreX = SCREEN_CENTER_X-160
 datescoreY = SCREEN_CENTER_Y-120
 rateX = SCREEN_CENTER_X-145
 rateY = SCREEN_CENTER_Y-100
+tierrateX = frameX+425
+tierrateY = frameY-294
+
+end
+
+--4:3 ratio fix. -Misterkister
+if round(GetScreenAspectRatio(),5) == 1.33333 then
+
+tierrateX = frameX+260
+tierrateY = frameY-157
 
 end
 
@@ -500,6 +517,94 @@ t[#t+1] = LoadFont("Common Large") .. {
 			self:settext("")
 		end
 	end,
+	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
+}
+
+--Tier Labeling for each song (especially rates). This function is a mess atm. -Misterkister
+--Exact value bugged for the tier labels. Ignore it for now. -Misterkister
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,tierrateX,tierrateY;halign,0.5;zoom,0.8;maxwidth,110/0.6);
+	BeginCommand=cmd(queuecommand,"Set");
+	SetCommand=function(self)
+		if song then
+		local meter = steps:GetMSD(getCurRateValue(), 1)
+		end;
+		local meter = steps:GetMSD(getCurRateValue(), 1)
+		--If there's no data shown because it's a solo or a doubles chart, then don't show the tier labels. -Misterkister
+		if meter == 0 then
+		self:settextf("")
+		--Tier 1
+		elseif meter < 7 then
+		self:settextf("Tier 1",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 2
+		elseif meter == 7 then
+		self:settextf("Tier 2",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 7 and meter < 13 then
+		self:settextf("Tier 2",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 3
+		elseif meter == 13 then
+		self:settextf("Tier 3",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 13 and meter < 17 then
+		self:settextf("Tier 3",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 4
+		elseif meter == 17 then
+		self:settextf("Tier 4",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 17 and meter < 21 then
+		self:settextf("Tier 4",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 5
+		elseif meter == 21 then
+		self:settextf("Tier 5",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 21 and meter < 25 then
+		self:settextf("Tier 5",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 6
+		elseif meter == 25 then
+		self:settextf("Tier 6",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 25 and meter < 29 then 
+		self:settextf("Tier 6",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 7
+		elseif meter == 29 then
+		self:settextf("Tier 7",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 29 and meter < 35 then
+		self:settextf("Tier 7",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 8
+		elseif meter == 35 then
+		self:settextf("Tier 8",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 35 and meter < 40 then
+		self:settextf("Tier 8",meter)
+		self:diffuse(ByMSD(meter))
+		--Tier 9
+		elseif meter == 40 then
+		self:settextf("Tier 9",meter)
+		self:diffuse(ByMSD(meter))
+		elseif meter > 40 then
+		self:settextf("Tier 9",meter)
+		self:diffuse(ByMSD(meter))
+		--Test
+		else
+		self:settext("")
+		end
+		if not song then
+		self:settext("")
+		end;
+		if steps:GetTimingData():HasWarps() then
+		self:settext("")
+		end;
+	end;
 	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
 	CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
 }
