@@ -60,15 +60,6 @@ t[#t+1] = Def.Actor{
 	PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set");
 }
 
-local judgeX = SCREEN_CENTER_X
-local judgeY = AvatarY+30
-if IsNetSMOnline() == true then
-
-judgeX = SCREEN_CENTER_X-125
-judgeY = AvatarY+40
-
-end
-
 t[#t+1] = Def.ActorFrame{
 	Name="Avatar"..PLAYER_1,
 	BeginCommand=cmd(queuecommand,"Set"),
@@ -132,7 +123,7 @@ t[#t+1] = Def.ActorFrame{
 		PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set"),
 	},
 	LoadFont("Common Normal") .. {
-		InitCommand=cmd(xy,judgeX,judgeY;halign,0.5;zoom,0.35;diffuse,getMainColor('positive')),
+		InitCommand=cmd(xy,SCREEN_CENTER_X-125,AvatarY+40;halign,0.5;zoom,0.35;diffuse,getMainColor('positive')),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			self:settext("Judge: "..GetTimingDifficulty())
@@ -146,12 +137,10 @@ t[#t+1] = Def.ActorFrame{
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 		local level = 1
-		if IsNetSMOnline() == true then
 			if profileXP > 0 then
 				level = math.floor(math.log(profileXP) / math.log(2))
 			end
 			self:settext("Overall Level: " .. level .. "\nEXP Earned: " .. profileXP .. "/" .. 2^(level+1))
-			end
 		end,
 		PlayerJoinedMessageCommand=cmd(queuecommand,"Set"),
 		PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set"),
