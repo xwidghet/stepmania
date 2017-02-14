@@ -16,7 +16,7 @@ local skillsets = {
 	Stam  	= 0,
 	Jack  	= 0,
 }
-
+local profileXP = 0
 local AvatarX = 0
 local AvatarY = SCREEN_HEIGHT-50
 
@@ -34,28 +34,40 @@ t[#t+1] = Def.Actor{
 				playCount = profile:GetTotalNumSongsPlayed()
 				playTime = profile:GetTotalSessionSeconds()
 				noteCount = profile:GetTotalTapsAndHolds()
+				profileXP = math.floor(profile:GetTotalDancePoints()/10 + profile:GetTotalNumSongsPlayed()*50)
 
 				-- oook i need to handle this differently
 				skillsets.Overall = profile:GetPlayerRating()
 				skillsets.Speed = profile:GetPlayerSkillsetRating(2)
 				skillsets.Stam = profile:GetPlayerSkillsetRating(3)
 				skillsets.Jack = profile:GetPlayerSkillsetRating(4)
+				
 			else 
 				profileName = "No Profile"
 				playCount = 0
 				playTime = 0
-				noteCount = 0
+				profileXP = 0
 			end; 
 		else
 			profileName = "No Profile"
 			playCount = 0
 			playTime = 0
 			noteCount = 0
+			profileXP = 0
 		end;
 	end;
 	PlayerJoinedMessageCommand=cmd(queuecommand,"Set");
 	PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set");
 }
+
+local judgeX = SCREEN_CENTER_X
+local judgeY = AvatarY+30
+if IsNetSMOnline() == true then
+
+judgeX = SCREEN_CENTER_X-125
+judgeY = AvatarY+40
+
+end
 
 t[#t+1] = Def.ActorFrame{
 	Name="Avatar"..PLAYER_1,
@@ -120,10 +132,26 @@ t[#t+1] = Def.ActorFrame{
 		PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set"),
 	},
 	LoadFont("Common Normal") .. {
-		InitCommand=cmd(xy,SCREEN_CENTER_X,AvatarY+30;halign,0.5;zoom,0.35;diffuse,getMainColor('positive')),
+		InitCommand=cmd(xy,judgeX,judgeY;halign,0.5;zoom,0.35;diffuse,getMainColor('positive')),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			self:settext("Judge: "..GetTimingDifficulty())
+		end,
+		PlayerJoinedMessageCommand=cmd(queuecommand,"Set"),
+		PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set"),
+	},
+	--Level system revamped. -Misterkister
+	LoadFont("Common Normal") .. {
+		InitCommand=cmd(xy,SCREEN_CENTER_X,AvatarY+25;halign,0.5;zoom,0.35;diffuse,getMainColor('positive')),
+		BeginCommand=cmd(queuecommand,"Set"),
+		SetCommand=function(self)
+		local level = 1
+		if IsNetSMOnline() == true then
+			if profileXP > 0 then
+				level = math.floor(math.log(profileXP) / math.log(2))
+			end
+			self:settext("Overall Level: " .. level .. "\nEXP Earned: " .. profileXP .. "/" .. 2^(level+1))
+			end
 		end,
 		PlayerJoinedMessageCommand=cmd(queuecommand,"Set"),
 		PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set"),
