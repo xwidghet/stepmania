@@ -85,11 +85,21 @@ t[#t+1] = Def.ActorFrame{
 			self:zoomto(50,50)
 		end,
 	},
+	--Revamped. SMO stuff for now. -Misterkister
 	LoadFont("Common Normal") .. {
 		InitCommand=cmd(xy,AvatarX+53,AvatarY+7;halign,0;zoom,0.6;diffuse,getMainColor('positive')),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
+			local tiers = {[0] = "1: Novice", [7] = "2: Basic", [13] = "3: Intermediate", [17] = "4: Advanced", [21] = "5: Expert", [25] = "6: Master", [29] = "7: Veteran", [35] = "8: Legendary", [40] = "9: Vibro Legend"}
+			local index = math.floor(skillsets.Overall)
+				while tiers[index] == nil do
+				index = index - 1
+				end
+			if IsNetSMOnline() then
+			self:settextf("%s: %5.2f (Tier %s)",profileName,skillsets.Overall,tiers[index])
+			else
 			self:settextf("%s: %5.2f",profileName,skillsets.Overall)
+			end
 		end,
 		PlayerJoinedMessageCommand=cmd(queuecommand,"Set"),
 		PlayerUnjoinedMessageCommand=cmd(queuecommand,"Set"),
