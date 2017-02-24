@@ -58,18 +58,4 @@ t[#t+1] = LoadFont("Common Large") .. {
 	CurrentSongChangedMessageCommand=cmd(queuecommand,"Set");
 };
 
---just a simple mouse rollover test.
---[[ 
-local function Update(self)
-	t.InitCommand=cmd(SetUpdateFunction,Update);
-	if isOver(self:GetChild("CurrentSort")) then
-    	self:GetChild("CurrentSort"):diffusealpha(0.5)
-    else
-    	self:GetChild("CurrentSort"):diffusealpha(1)
-    end;
-end; 
-
-t.InitCommand=cmd(SetUpdateFunction,Update);
---]]
-
 return t
