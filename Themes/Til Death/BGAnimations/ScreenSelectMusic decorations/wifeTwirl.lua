@@ -278,6 +278,23 @@ t[#t+1] = Def.ActorFrame{
 		CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
 		RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
 	},
+
+	-- Score
+	LoadFont("Common Large")..{
+		InitCommand=cmd(xy,frameX+capWideScale(get43size(384),384)-5,270;zoom,0.7;halign,1),
+		BeginCommand=cmd(queuecommand,"Set"),
+		SetCommand=function(self)
+			if song and score then
+				local ssr = score:GetSkillsetSSR(1)
+				self:settextf("%00.2f", ssr)
+				self:diffuse(ByMSD(ssr))
+			else
+				self:settext("")
+			end
+		end,
+		CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
+		RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	},
 	-- **End score related stuff**
 }
 
@@ -316,6 +333,18 @@ for i=1,5 do
 end
 
 -- Difficulty value ("meter"), need to change this later
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,frameX+2,DBLframeY+15;halign,0;maxwidth,80;zoom,0.4;diffusealpha,0.3),
+	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	SetCommand = function(self)
+		if song then
+			self:settext("RATING")
+		else
+			self:settext("")
+		end
+	end,
+}
+
 t[#t+1] = LoadFont("Common Large") .. {
 	InitCommand=cmd(xy,frameX+DBLCellWidth-4,DBLframeY+14;halign,1;zoom,0.45;maxwidth,(DBLCellWidth-4)/0.45),
 	BeginCommand=cmd(queuecommand,"Set"),
@@ -332,7 +361,20 @@ t[#t+1] = LoadFont("Common Large") .. {
 	CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
 }
 
+
 -- Song duration
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,frameX+2+2*(DBLCellWidth+2),DBLframeY+15;halign,0;maxwidth,80;zoom,0.4;diffusealpha,0.3),
+	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	SetCommand = function(self)
+		if song then
+			self:settext("DURATION")
+		else
+			self:settext("")
+		end
+	end,
+}
+
 t[#t+1] = LoadFont("Common Large") .. {
 	InitCommand=cmd(xy,frameX+3*(DBLCellWidth+2)-4,DBLframeY+14;visible,true;halign,1;zoom,0.45;maxwidth,(DBLCellWidth-4)/0.45),
 	BeginCommand=cmd(queuecommand,"Set"),
