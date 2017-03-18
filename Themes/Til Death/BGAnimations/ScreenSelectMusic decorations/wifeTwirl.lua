@@ -26,19 +26,6 @@ local t = Def.ActorFrame{
 	TabChangedMessageCommand=cmd(queuecommand,"Set"),
 }
 
--- Music Rate Display
-t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,18,SCREEN_BOTTOM-225;visible,true;halign,0;zoom,0.4;maxwidth,capWideScale(get43size(360),360)/capWideScale(get43size(0.45),0.45)),
-	BeginCommand=function(self)
-		self:settext(getCurRateDisplayString())
-	end,
-	CodeMessageCommand=function(self,params)
-		local rate = getCurRateValue()
-		ChangeMusicRate(rate,params)
-		self:settext(getCurRateDisplayString())
-	end,
-}
-
 -- Temporary update control tower; it would be nice if the basic song/step change commands were thorough and explicit and non-redundant
 t[#t+1] = Def.Actor{
 	SetCommand=function(self)
@@ -515,6 +502,20 @@ t[#t+1] = LoadFont("Common Large") .. {
 	CurrentStepsP1ChangedMessageCommand=cmd(queuecommand,"Set"),
 	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
 }
+
+-- Music Rate Display
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,frameX+2+1*(DBLCellWidth+2),DBLframeY+20;halign,0;zoom,0.4;diffusealpha,0.3),
+	BeginCommand=function(self)
+		self:settext(getCurRateDisplayStringWifeTwirl())
+	end,
+	CodeMessageCommand=function(self,params)
+		local rate = getCurRateValue()
+		ChangeMusicRate(rate,params)
+		self:settext(getCurRateDisplayStringWifeTwirl())
+	end,
+}
+
 
 
 return t

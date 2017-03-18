@@ -173,7 +173,17 @@ function getCurRateDisplayString()
 	elseif o == "2x" then
 		o = "2.0x"
 	end
-	return o.."Music"
+	return o .. "Music"
+end
+
+function getCurRateDisplayStringWifeTwirl()
+	local o = getCurRateString()
+	if o == "1x" then
+		o = "1.0x"
+	elseif o == "2x" then
+		o = "2.0x"
+	end
+	return o
 end
 
 function getCurRateValue()
