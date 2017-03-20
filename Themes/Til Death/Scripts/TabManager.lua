@@ -8,6 +8,11 @@ local availTabSize = 2
 local availableTabs1P = {true,true,true,true,true,true}
 local availableTabs2P = {true,false,false,false,true}
 
+function Actor.bouncy(actor,time)
+	return actor:tween(time,"TweenType_Bezier",{0,0,0.3,-0.1,0.3,1.5,1,1})
+end
+
+
 --0 indexed tabs... yet 1 indexed lua tables mfw. Will probably go into infinite loop if everything is false.
 -- Recursively grabs the next available tab. Looping around to start if needed.
 local function getNextAvailable(players,index)
@@ -23,6 +28,7 @@ local function getNextAvailable(players,index)
 		return getNextAvailable(players,(index+1)%tabSize)
 	end;
 end;
+
 
 -- Resets the index of the tabs to 0
 function resetTabIndex()
