@@ -141,6 +141,8 @@ static Preference<float> m_fTimingWindowAdd	( "TimingWindowAdd",		0 );
 static Preference1D<float> m_fTimingWindowSeconds( TimingWindowSecondsInit, NUM_TimingWindow );
 static Preference<float> m_fTimingWindowJump	( "TimingWindowJump",		0.25 );
 static Preference<float> m_fMaxInputLatencySeconds	( "MaxInputLatencySeconds",	0.0 );
+static Preference<float> MinHitRegistration("MinHitRegistrationWindow", 0.180f);
+static Preference<float> MaxHitRegistration("MaxHitRegistrationWindow", 0.f);
 static Preference<bool> g_bEnableAttackSoundPlayback	( "EnableAttackSounds", true );
 static Preference<bool> g_bEnableMineSoundPlayback	( "EnableMineHitSound", true );
 
@@ -2231,13 +2233,14 @@ void Player::Step( int col, int row, const std::chrono::steady_clock::time_point
 				}
 				// Fall through to default.
 			default:
-				if( (pTN->type == TapNoteType_Lift) == bRelease )
+				if( (pTN->type == TapNoteType_Lift) == bRelease && fSecondsFromExact <= GetMaxStepDistanceSeconds())
 				{
 					if(	 fSecondsFromExact <= GetWindowSeconds(TW_W1) )	score = TNS_W1;
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W2) )	score = TNS_W2;
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W3) )	score = TNS_W3;
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W4) )	score = TNS_W4;
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W5) )	score = TNS_W5;
+					else score = TNS_Miss;
 				}
 				break;
 			}
@@ -3083,11 +3086,17 @@ void Player::HandleHoldScore( const TapNote &tn )
 float Player::GetMaxStepDistanceSeconds()
 {
 	float fMax = 0;
+	float minreg = MinHitRegistration;
+	float maxreg = MaxHitRegistration;
 	fMax = max( fMax, GetWindowSeconds(TW_W5) );
 	fMax = max( fMax, GetWindowSeconds(TW_W4) );
 	fMax = max( fMax, GetWindowSeconds(TW_W3) );
 	fMax = max( fMax, GetWindowSeconds(TW_W2) );
 	fMax = max( fMax, GetWindowSeconds(TW_W1) );
+	fMax = max(fMax, minreg);
+	if (maxreg > 0.f) {
+		fMax = min(fMax, maxreg);
+	}
 	float f = GAMESTATE->m_SongOptions.GetCurrent().m_fMusicRate * fMax;
 	return f + m_fMaxInputLatencySeconds;
 }
