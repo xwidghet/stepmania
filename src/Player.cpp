@@ -141,7 +141,7 @@ static Preference<float> m_fTimingWindowAdd	( "TimingWindowAdd",		0 );
 static Preference1D<float> m_fTimingWindowSeconds( TimingWindowSecondsInit, NUM_TimingWindow );
 static Preference<float> m_fTimingWindowJump	( "TimingWindowJump",		0.25 );
 static Preference<float> m_fMaxInputLatencySeconds	( "MaxInputLatencySeconds",	0.0 );
-static Preference<float> MinHitRegistration("MinHitRegistrationWindow", 0.180f);
+static Preference<float> MinHitRegistration("MinHitRegistrationWindow", 0.f);
 static Preference<float> MaxHitRegistration("MaxHitRegistrationWindow", 0.f);
 static Preference<bool> g_bEnableAttackSoundPlayback	( "EnableAttackSounds", true );
 static Preference<bool> g_bEnableMineSoundPlayback	( "EnableMineHitSound", true );
