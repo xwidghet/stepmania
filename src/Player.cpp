@@ -2239,8 +2239,7 @@ void Player::Step( int col, int row, const std::chrono::steady_clock::time_point
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W2) )	score = TNS_W2;
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W3) )	score = TNS_W3;
 					else if( fSecondsFromExact <= GetWindowSeconds(TW_W4) )	score = TNS_W4;
-					else if( fSecondsFromExact <= GetWindowSeconds(TW_W5) )	score = TNS_W5;
-					else score = TNS_Miss;
+					else score = TNS_W5;
 				}
 				break;
 			}
