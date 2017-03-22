@@ -1,6 +1,9 @@
 local profile = PROFILEMAN:GetProfile(PLAYER_1)
 local frameX = 10
 local frameY = 250+capWideScale(get43size(120),90)
+local DBLframeX = frameX
+local DBLframeY = 61+capWideScale(get43size(120),120)+5
+local DBLCellWidth = capWideScale(get43size(384),384)/3-2
 local frameWidth = capWideScale(get43size(455),455)
 local scoreType = themeConfig:get_data().global.DefaultScoreType
 local score
@@ -24,19 +27,6 @@ local t = Def.ActorFrame{
 		end
 	end,
 	TabChangedMessageCommand=cmd(queuecommand,"Set"),
-}
-
--- Music Rate Display
-t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,18,SCREEN_BOTTOM-225;visible,true;halign,0;zoom,0.4;maxwidth,capWideScale(get43size(360),360)/capWideScale(get43size(0.45),0.45)),
-	BeginCommand=function(self)
-		self:settext(getCurRateDisplayString())
-	end,
-	CodeMessageCommand=function(self,params)
-		local rate = getCurRateValue()
-		ChangeMusicRate(rate,params)
-		self:settext(getCurRateDisplayString())
-	end,
 }
 
 -- Temporary update control tower; it would be nice if the basic song/step change commands were thorough and explicit and non-redundant
@@ -125,16 +115,26 @@ t[#t+1] = Def.Actor{
 	end,
 }
 
+-- Frames for calc, BPM and len
+t[#t+1] = Def.ActorFrame{
+	InitCommand=cmd(xy,DBLframeX,DBLframeY;halign,0;valign,0);
+	Def.Quad{InitCommand=cmd(xy,0*(DBLCellWidth+2)-1,0;zoomto,DBLCellWidth,30;halign,0;valign,0;diffuse,color("#333333EE");diffusealpha,0.66)},
+	Def.Quad{InitCommand=cmd(xy,1*(DBLCellWidth+2),0;zoomto,DBLCellWidth,30;halign,0;valign,0;diffuse,color("#333333EE");diffusealpha,0.66)},		
+	Def.Quad{InitCommand=cmd(xy,2*(DBLCellWidth+2)+1,0;zoomto,DBLCellWidth,30;halign,-0;valign,0;diffuse,color("#333333EE");diffusealpha,0.66)},		
+}
+
 t[#t+1] = Def.ActorFrame{
 	-- **frames/bars**
-	Def.Quad{InitCommand=cmd(xy,frameX,frameY-76;zoomto,110,94;halign,0;valign,0;diffuse,color("#333333CC");diffusealpha,0.66)},			--Upper Bar
-	Def.Quad{InitCommand=cmd(xy,frameX,frameY+18;zoomto,frameWidth+4,50;halign,0;valign,0;diffuse,color("#333333CC");diffusealpha,0.66)},	--Lower Bar
-	Def.Quad{InitCommand=cmd(xy,frameX,frameY-76;zoomto,8,144;halign,0;valign,0;diffuse,getMainColor('highlight');diffusealpha,0.5)},		--Side Bar (purple streak on the left)
+	Def.Quad{InitCommand=cmd(xy,frameX,220;zoomto,capWideScale(get43size(384),384),80;halign,0;valign,0;diffuse,color("#333333CC");diffusealpha,0.66)},		--Upper Bar
+	Def.Quad{InitCommand=cmd(xy,frameX,305;zoomto,capWideScale(get43size(384),384),100;halign,0;valign,0;diffuse,color("#333333CC");diffusealpha,0.66)},	--Lower Bar
+	Def.Quad{InitCommand=cmd(xy,frameX,305;zoomto,8,100;halign,0;valign,0;diffuse,getMainColor('highlight');diffusealpha,0.5)},		--Side Bar Lower (purple streak on the left)
+	Def.Quad{InitCommand=cmd(xy,frameX,220;zoomto,8,80;halign,0;valign,0;diffuse,getMainColor('highlight');diffusealpha,0.5)},		--Side Bar Upper (purple streak on the left)
 	
+	--Diff Bar
 	-- **score related stuff** These need to be updated with rate changed commands
 	-- Primary percent score
 	LoadFont("Common Large")..{
-		InitCommand=cmd(xy,frameX+55,frameY+50;zoom,0.6;halign,0.5;maxwidth,125;valign,1),
+		InitCommand=cmd(xy,frameX+15,248;zoom,0.6;halign,0;valign,1;maxwidth,170),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then
@@ -155,7 +155,7 @@ t[#t+1] = Def.ActorFrame{
 	
 	-- Primary ScoreType
 	LoadFont("Common Large")..{
-		InitCommand=cmd(xy,frameX+125,frameY+40;zoom,0.3;halign,1;valign,1),
+		InitCommand=cmd(xy,frameX+120,248;zoom,0.3;halign,0;valign,1),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then
@@ -173,8 +173,8 @@ t[#t+1] = Def.ActorFrame{
 	},
 	
 	-- Secondary percent score
-	LoadFont("Common Normal")..{
-		InitCommand=cmd(xy,frameX+130,frameY+63;zoom,0.6;halign,0.5;maxwidth,125;valign,1),
+	LoadFont("Common Large")..{
+		InitCommand=cmd(xy,frameX+15,278;zoom,0.6;halign,0;valign,1;maxwidth,170),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then
@@ -194,8 +194,8 @@ t[#t+1] = Def.ActorFrame{
 	},
 	
 	-- Secondary ScoreType
-	LoadFont("Common Normal")..{
-		InitCommand=cmd(xy,frameX+173,frameY+63;zoom,0.4;halign,1;valign,1),
+	LoadFont("Common Large")..{
+		InitCommand=cmd(xy,frameX+120,278;zoom,0.3;halign,0;valign,1),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then
@@ -213,8 +213,8 @@ t[#t+1] = Def.ActorFrame{
 	},
 	
 	-- Rate for the displayed score
-	LoadFont("Common Normal")..{
-		InitCommand=cmd(xy,frameX+55,frameY+58;zoom,0.5;halign,0.5),
+	LoadFont("Common Large")..{
+		InitCommand=cmd(xy,frameX+60,288;zoom,0.3;halign,0.5),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then 
@@ -251,7 +251,7 @@ t[#t+1] = Def.ActorFrame{
 	
 	-- Date score achieved on
 	LoadFont("Common Normal")..{
-		InitCommand=cmd(xy,frameX+185,frameY+59;zoom,0.4;halign,0),
+		InitCommand=cmd(xy,frameX+capWideScale(get43size(384),384)-5,230;zoom,0.5;halign,1),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then
@@ -266,11 +266,28 @@ t[#t+1] = Def.ActorFrame{
 
 	-- MaxCombo
 	LoadFont("Common Normal")..{
-		InitCommand=cmd(xy,frameX+185,frameY+49;zoom,0.4;halign,0),
+		InitCommand=cmd(xy,frameX+capWideScale(get43size(384),384)-5,245;zoom,0.5;halign,1),
 		BeginCommand=cmd(queuecommand,"Set"),
 		SetCommand=function(self)
 			if song and score then
 				self:settextf("Max Combo: %d", score:GetMaxCombo())
+			else
+				self:settext("")
+			end
+		end,
+		CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
+		RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	},
+
+	-- Score
+	LoadFont("Common Large")..{
+		InitCommand=cmd(xy,frameX+capWideScale(get43size(384),384)-5,270;zoom,0.7;halign,1),
+		BeginCommand=cmd(queuecommand,"Set"),
+		SetCommand=function(self)
+			if song and score then
+				local ssr = score:GetSkillsetSSR(1)
+				self:settextf("%00.2f", ssr)
+				self:diffuse(ByMSD(ssr))
 			else
 				self:settext("")
 			end
@@ -285,7 +302,7 @@ t[#t+1] = Def.ActorFrame{
 local function radarPairs(i)
 	local o = Def.ActorFrame{
 		LoadFont("Common Normal")..{
-			InitCommand=cmd(xy,frameX+13,frameY-52+13*i;zoom,0.5;halign,0;maxwidth,120),
+			InitCommand=cmd(xy,frameX+13,frameY-42+19*i;zoom,0.5;halign,0;maxwidth,120),
 			SetCommand=function(self)
 				if song then
 					self:settext(ms.RelevantRadarsShort[i])
@@ -296,7 +313,7 @@ local function radarPairs(i)
 			RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
 		},
 		LoadFont("Common Normal")..{
-			InitCommand=cmd(xy,frameX+105,frameY+-52+13*i;zoom,0.5;halign,1;maxwidth,60),
+			InitCommand=cmd(xy,frameX+115,frameY+-42+19*i;zoom,0.5;halign,1;maxwidth,90),
 			SetCommand=function(self)
 				if song then		
 					self:settext(steps:GetRelevantRadars(PLAYER_1)[i])
@@ -316,13 +333,25 @@ for i=1,5 do
 end
 
 -- Difficulty value ("meter"), need to change this later
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,frameX+2,DBLframeY+15;halign,0;maxwidth,80;zoom,0.4;diffusealpha,0.3),
+	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	SetCommand = function(self)
+		if song then
+			self:settext("RATING")
+		else
+			self:settext("")
+		end
+	end,
+}
+
 t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,frameX+58,frameY-62;halign,0.5;zoom,0.6;maxwidth,110/0.6),
+	InitCommand=cmd(xy,frameX+DBLCellWidth-4,DBLframeY+14;halign,1;zoom,0.45;maxwidth,(DBLCellWidth-4)/0.45),
 	BeginCommand=cmd(queuecommand,"Set"),
 	SetCommand=function(self)
 		if song then
 			local meter = steps:GetMSD(getCurRateValue(), 1)
-			self:settextf("%05.2f",meter)
+			self:settextf("%5.2f",meter)
 			self:diffuse(ByMSD(meter))
 		else
 			self:settext("")
@@ -332,9 +361,22 @@ t[#t+1] = LoadFont("Common Large") .. {
 	CurrentRateChangedMessageCommand=cmd(queuecommand,"Set"),
 }
 
+
 -- Song duration
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,frameX+2+2*(DBLCellWidth+2),DBLframeY+15;halign,0;maxwidth,80;zoom,0.4;diffusealpha,0.3),
+	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+	SetCommand = function(self)
+		if song then
+			self:settext("DURATION")
+		else
+			self:settext("")
+		end
+	end,
+}
+
 t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,(capWideScale(get43size(384),384))+62,SCREEN_BOTTOM-85;visible,true;halign,1;zoom,capWideScale(get43size(0.6),0.6);maxwidth,capWideScale(get43size(360),360)/capWideScale(get43size(0.45),0.45)),
+	InitCommand=cmd(xy,frameX+3*(DBLCellWidth+2)-4,DBLframeY+14;visible,true;halign,1;zoom,0.45;maxwidth,(DBLCellWidth-4)/0.45),
 	BeginCommand=cmd(queuecommand,"Set"),
 	SetCommand=function(self)
 		if song then
@@ -350,10 +392,22 @@ t[#t+1] = LoadFont("Common Large") .. {
 }
 
 -- BPM display/label not sure why this was never with the chart info in the first place
+t[#t+1] = LoadFont("Common Normal") .. {
+	SetCommand = function(self)
+		if song then
+			self:settext("BPM")
+		else
+			self:settext("")
+		end
+	end,
+	InitCommand=cmd(xy,frameX+2+1*(DBLCellWidth+2),DBLframeY+9;halign,0;zoom,0.4;diffusealpha,0.3),
+	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
+}
+
 t[#t+1] = Def.BPMDisplay {
 	File=THEME:GetPathF("BPMDisplay", "bpm"),
 	Name="BPMDisplay",
-	InitCommand=cmd(xy,capWideScale(get43size(384),384)+62,SCREEN_BOTTOM-100;halign,1;zoom,0.50),
+	InitCommand=cmd(xy,frameX+2*(DBLCellWidth+2)-4,DBLframeY+14;halign,1;zoom,0.45;maxwidth,(DBLCellWidth-4)/0.45),
 	SetCommand=function(self)
 		if song then 
 			self:visible(1)
@@ -366,22 +420,9 @@ t[#t+1] = Def.BPMDisplay {
 	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
 }
 
-t[#t+1] = LoadFont("Common Normal") .. {
-	SetCommand = function(self)
-		if song then
-			self:settext("BPM")
-		else
-			self:settext("")
-		end
-	end,
-	InitCommand=cmd(xy,capWideScale(get43size(384),384)+41,SCREEN_BOTTOM-100;halign,1;zoom,0.50),
-	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
-}
-
--- CDtitle, need to figure out a better place for this later. -mina
---Gonna move the cdtitle right next to selected song similar to ultralight. -Misterkister
+-- CDtitle, need to figure out a better place for this later
 t[#t+1] = Def.Sprite {
-	InitCommand=cmd(xy,capWideScale(get43size(344),364)+50,capWideScale(get43size(345),255);halign,0.5;valign,1),
+	InitCommand=cmd(xy,capWideScale(get43size(384),384)+50,capWideScale(get43size(210),180)+50;halign,0.5;valign,1),
 	SetCommand=function(self)
 		self:finishtweening()
 		if GAMESTATE:GetCurrentSong() then
@@ -421,7 +462,7 @@ t[#t+1] = Def.Sprite {
 }
 
 t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,frameX,frameY-120;halign,0;zoom,0.4),
+	InitCommand=cmd(xy,frameX+capWideScale(get43size(384),384)-10,320;halign,1;zoom,0.4),
 	BeginCommand=cmd(queuecommand,"Set"),
 	SetCommand=function(self)
 		if steps:GetTimingData():HasWarps() then
@@ -463,7 +504,7 @@ t[#t+1] = LoadFont("Common Large") .. {
 
 
 t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,frameX+120,frameY-60;halign,0;zoom,0.4,maxwidth,125),
+	InitCommand=cmd(xy,frameX+130,frameY-15;halign,0;zoom,0.4,maxwidth,125),
 	BeginCommand=cmd(queuecommand,"Set"),
 	SetCommand=function(self)
 		if song then
@@ -477,7 +518,7 @@ t[#t+1] = LoadFont("Common Large") .. {
 }
 
 t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,frameX+120,frameY-30;halign,0;zoom,0.4,maxwidth,125),
+	InitCommand=cmd(xy,frameX+130,frameY+15;halign,0;zoom,0.4,maxwidth,125),
 	BeginCommand=cmd(queuecommand,"Set"),
 	SetCommand=function(self)
 		if song then
@@ -491,7 +532,7 @@ t[#t+1] = LoadFont("Common Large") .. {
 }
 
 t[#t+1] = LoadFont("Common Large") .. {
-	InitCommand=cmd(xy,frameX+120,frameY;halign,0;zoom,0.4,maxwidth,125),
+	InitCommand=cmd(xy,frameX+130,frameY+45;halign,0;zoom,0.4,maxwidth,125),
 	BeginCommand=cmd(queuecommand,"Set"),
 	SetCommand=function(self)
 		if song then
@@ -515,6 +556,20 @@ t[#t+1] = LoadFont("Common Large") .. {
 	CurrentStepsP1ChangedMessageCommand=cmd(queuecommand,"Set"),
 	RefreshChartInfoMessageCommand=cmd(queuecommand,"Set"),
 }
+
+-- Music Rate Display
+t[#t+1] = LoadFont("Common Normal") .. {
+	InitCommand=cmd(xy,frameX+2+1*(DBLCellWidth+2),DBLframeY+20;halign,0;zoom,0.4;diffusealpha,0.3),
+	BeginCommand=function(self)
+		self:settext(getCurRateDisplayStringWifeTwirl())
+	end,
+	CodeMessageCommand=function(self,params)
+		local rate = getCurRateValue()
+		ChangeMusicRate(rate,params)
+		self:settext(getCurRateDisplayStringWifeTwirl())
+	end,
+}
+
 
 
 return t
