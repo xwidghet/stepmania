@@ -79,6 +79,23 @@ o[#o+1] = Def.ActorMultiVertex{
 			self:SetDrawState{Mode="DrawMode_Quads"}
 			self:SetDrawState{First = 1, Num=#verts}
 		end,
+		JudgeDisplayChangedMessageCommand=function(self)
+			verts = {};
+			for i=1,#devianceTable do
+				local x = fitX(wuab[i]);
+				local y = fitY(dvt[i]);
+				local color = offsetToJudgeColor(dvt[i]/1000, tst[judge]);
+				if math.abs(y) > plotHeight/2 then
+						y = fitY(tst[judge]*183);
+				end
+				verts[#verts+1] = {{x-dotDims,y+dotDims,0}, color}
+				verts[#verts+1] = {{x+dotDims,y+dotDims,0}, color}
+				verts[#verts+1] = {{x+dotDims,y-dotDims,0}, color}
+				verts[#verts+1] = {{x-dotDims,y-dotDims,0}, color}
+			end
+			self:SetVertices(verts)
+			self:SetDrawState{First = 1, Num=#verts}
+		end,
 }
 
 -- Early/Late markers
