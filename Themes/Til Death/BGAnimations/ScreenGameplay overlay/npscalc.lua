@@ -167,6 +167,8 @@ end
 
 local debug = false
 local countNotesSeparately = GAMESTATE:CountNotesSeparately();
+local enabledPlayers = GAMESTATE:GetEnabledPlayers();
+local columnsPerPlayer = GAMESTATE:GetCurrentStyle():ColumnsPerPlayer();
 -- Generally, a smaller window will adapt faster, but a larger window will have a more stable value.
 local maxWindow = themeConfig:get_data().NPSDisplay.MaxWindow/2 -- this will be the maximum size of the "window" in seconds. 
 local minWindow = themeConfig:get_data().NPSDisplay.MinWindow/2 -- this will be the minimum size of the "window" in seconds. Unused for now.
@@ -296,25 +298,24 @@ end
 
 -- The function simply Calculates the moving average NPS
 -- Generally this is just nps = noteSum/window.
-local function getCurNPS(pn)
-	return noteSum[pn]/clamp(GAMESTATE:GetSongPosition():GetMusicSeconds(),minWindow,npsWindow[pn])
+local function getCurNPS(pn, musicSeconds)
+	return noteSum[pn]/clamp(musicSeconds,minWindow,npsWindow[pn])
 end
-
-
 
 -- This is an update function that is being called every frame while this is loaded.
 local function Update(self)
 	self.InitCommand=cmd(SetUpdateFunction,Update)
-
-	for _,pn in pairs(GAMESTATE:GetEnabledPlayers()) do
+	local musicSeconds = GAMESTATE:GetSongPosition():GetMusicSeconds();
+	
+	for _,pn in pairs(enabledPlayers) do
 		if enabled.NPSDisplay[pn] or enabled.NPSGraph[pn] then
 			-- We want to constantly check for old notes to remove and update the NPS counter text. 
 			removeNote(pn)
 
-			curNPS = getCurNPS(pn)
+			curNPS = getCurNPS(pn, musicSeconds)
 
 			-- Update peak nps. Only start updating after enough time has passed.
-			if GAMESTATE:GetSongPosition():GetMusicSeconds() > npsWindow[pn] then
+			if musicSeconds > npsWindow[pn] then
 				peakNPS[pn] = math.max(peakNPS[pn],curNPS)
 			end
 			-- the actor which called this update function passes itself down as "self".
@@ -370,7 +371,7 @@ local function npsDisplay(pn)
 				-- Since we only want to count the number of notes in a chord,
 				-- we just iterate over the table and count the ones that aren't nil. 
 				-- Set chordsize to 1 if notes are counted separately.
-				for i=1,GAMESTATE:GetCurrentStyle():ColumnsPerPlayer() do
+				for i=1,columnsPerPlayer do
 					if notes ~= nil and notes[i] ~= nil then
 						chordsize = chordsize+1
 					end
