@@ -268,10 +268,6 @@ local peakNPS = {
 -- This function is called whenever a JudgmentMessageCommand for regular tap note occurs.
 -- (simply put, whenever you hit/miss a note)
 local function addNote(pn,time,size)
-	if countNotesSeparately == true then
-		size = 1;
-	end
-	
 	noteTable[pn][#noteTable[pn]+1] = {time,size}
 	noteSum[pn] = noteSum[pn]+size
 end
@@ -374,15 +370,15 @@ local function npsDisplay(pn)
 				-- Since we only want to count the number of notes in a chord,
 				-- we just iterate over the table and count the ones that aren't nil. 
 				-- Set chordsize to 1 if notes are counted separately.
-				if GAMESTATE:GetCurrentGame():CountNotesSeparately() then
-					chordsize = 1
-				else
-					for i=1,GAMESTATE:GetCurrentStyle():ColumnsPerPlayer() do
-						if notes ~= nil and notes[i] ~= nil then
-							chordsize = chordsize+1
-						end
+				for i=1,GAMESTATE:GetCurrentStyle():ColumnsPerPlayer() do
+					if notes ~= nil and notes[i] ~= nil then
+						chordsize = chordsize+1
 					end
-				end 
+				end
+				
+				if chordsize > 1 and countNotesSeparately then
+					chordsize = 1;
+				end;
 				
 				-- add the note to noteTable
 				addNote(pn,GetTimeSinceStart(),chordsize)
