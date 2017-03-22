@@ -1,8 +1,8 @@
 local update = false
 local t = Def.ActorFrame{
-	BeginCommand=cmd(queuecommand,"Set";visible,false),
-	OffCommand=cmd(bouncebegin,0.2;xy,-500,0;diffusealpha,0),
-	OnCommand=cmd(bouncebegin,0.2;xy,0,0;diffusealpha,1),
+	BeginCommand=cmd(queuecommand,"Set";visible,false;xy,0,-500),
+	OffCommand=cmd(finishtweening;bouncy,0.32;xy,-100,0;diffusealpha,0),
+	OnCommand=cmd(bouncy,0.32;xy,0,0;diffusealpha,1),
 	SetCommand=function(self)
 		self:finishtweening()
 		
