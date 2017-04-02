@@ -7,6 +7,7 @@ local rateIndex = 1
 local scoreIndex = 1
 local score
 local pn = GAMESTATE:GetEnabledPlayers()[1]
+local skillsetsSSR = {"Overall", "Stream", "Jumpstream", "Handstream", "Stamina", "JackSpeed", "JackStamina", "Technical"}
 
 local defaultRateText = ""
 if themeConfig:get_data().global.RateSort then
@@ -183,74 +184,44 @@ t[#t+1] = LoadFont("Common Normal")..{
 	-- ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
 -- }
 
--- SSR displays
-t[#t+1] = LoadFont("Common Normal")..{
-	Name="Score",
-	InitCommand=cmd(xy,frameX+offsetX+155,frameY+offsetY+28;zoom,0.5;halign,0),
-	SetCommand=function(self)
-		if score ~= nil then
-			if score:GetWifeScore() == 0 then 
-				self:settext("")
-			else
-				self:settextf("%5.2f", score:GetSkillsetSSR(2))
-			end
-		else
-			self:settext("")
-		end
-	end,
-	ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
-}
+-- SSR displays but better
 
-t[#t+1] = LoadFont("Common Normal")..{
-	Name="Score",
-	InitCommand=cmd(xy,frameX+offsetX+155,frameY+offsetY+38;zoom,0.5;halign,0),
-	SetCommand=function(self)
-		if score ~= nil then
-			if score:GetWifeScore() == 0 then 
-				self:settext("")
+for i=1,#skillsetsSSR do
+	t[#t+1] = LoadFont("Common Normal") .. {
+		Name=skillsetsSSR[i].."Score",
+		InitCommand=cmd(xy,frameX+frameWidth*0.7,frameY+offsetY+125+18*(i-1);zoom,0.5;halign,1;maxwidth,80),
+		SetCommand=function(self)
+			if score ~= nil then
+				if score:GetWifeScore() == 0 then 
+					self:settext("")
+				else
+					self:settext(skillsetsSSR[i]..":")
+				end
 			else
-				self:settextf("%5.2f", score:GetSkillsetSSR(3))
+				self:settext("")
 			end
-		else
-			self:settext("")
-		end
-	end,
-	ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
-}
+		end,
+		ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
+	}
 
-t[#t+1] = LoadFont("Common Normal")..{
-	Name="Score",
-	InitCommand=cmd(xy,frameX+offsetX+155,frameY+offsetY+48;zoom,0.5;halign,0),
-	SetCommand=function(self)
-		if score ~= nil then
-			if score:GetWifeScore() == 0 then 
-				self:settext("")
+	t[#t+1] = LoadFont("Common Normal")..{
+		Name="Score",
+		InitCommand=cmd(xy,frameX+frameWidth*0.7+2,frameY+offsetY+125+18*(i-1);zoom,0.5;halign,0;maxwidth,80),
+		SetCommand=function(self)
+			if score ~= nil then
+				if score:GetWifeScore() == 0 then 
+					self:settext("")
+				else
+					self:settextf("%5.2f", score:GetSkillsetSSR(i))
+					self:diffuse(ByMSD(score:GetSkillsetSSR(i)))
+				end
 			else
-				self:settextf("%5.2f", score:GetSkillsetSSR(4))
-			end
-		else
-			self:settext("")
-		end
-	end,
-	ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
-}
-
-t[#t+1] = LoadFont("Common Normal")..{
-	Name="Score",
-	InitCommand=cmd(xy,frameX+offsetX+155,frameY+offsetY+58;zoom,0.5;halign,0),
-	SetCommand=function(self)
-		if score ~= nil then
-			if score:GetWifeScore() == 0 then 
 				self:settext("")
-			else
-				self:settextf("%5.2f", score:GetSkillsetSSR(5))
 			end
-		else
-			self:settext("")
-		end
-	end,
-	ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
-}
+		end,
+		ScoreUpdateMessageCommand=cmd(queuecommand,"Set")
+	}
+end
 
 t[#t+1] = LoadFont("Common Normal")..{
 	Name="ClearType",
