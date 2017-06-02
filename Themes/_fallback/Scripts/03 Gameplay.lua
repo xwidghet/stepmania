@@ -320,12 +320,12 @@ local CodeDetectorCodes = {
 	-- group
 	NextGroup = {
 		default = "",
-		dance = "MenuUp,MenuRight,MenuRight",
+		dance = "",
 		pump = "",
 	},
 	PrevGroup = {
 		default = "",
-		dance = "MenuUp,MenuDown,MenuUp,MenuDown",
+		dance = "",
 		pump = "",
 	},
 	CloseCurrentFolder = {
@@ -370,7 +370,7 @@ local CodeDetectorCodes = {
 	-- modifiers section
 	CancelAll = {
 		default = "",
-		dance = "Left,Right,Left,Right,Left,Right,Left,Right",
+		dance = "",
 	},
 	--- specific modifiers
 	Mirror = {
